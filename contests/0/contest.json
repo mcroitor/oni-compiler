@@ -1,0 +1,121 @@
+{
+    "name": "Sample Contest",
+    "tasks": [
+        {
+            "name": "fact",
+            "memoryLimit": "16000",
+            "timeLimit": "1000",
+            "tests": [
+                {
+                    "input" : "01-fact.in", 
+                    "output" : "01-fact.ok",
+                    "points" : "20"
+                },
+                {
+                    "input" : "02-fact.in", 
+                    "output" : "02-fact.ok",
+                    "points" : "20"
+                },
+                {
+                    "input" : "03-fact.in", 
+                    "output" : "03-fact.ok",
+                    "points" : "20"
+                },
+                {
+                    "input" : "04-fact.in", 
+                    "output" : "04-fact.ok",
+                    "points" : "20"
+                },
+                {
+                    "input" : "05-fact.in", 
+                    "output" : "05-fact.ok",
+                    "points" : "20"
+                }
+            ]
+        },
+        {
+            "name": "suma",
+            "memoryLimit": "16000",
+            "timeLimit": "1000",
+            "tests": [
+                {
+                    "input" : "01-suma.in", 
+                    "output" : "01-suma.ok",
+                    "points" : "20"
+                },
+                {
+                    "input" : "02-suma.in", 
+                    "output" : "02-suma.ok",
+                    "points" : "20"
+                },
+                {
+                    "input" : "03-suma.in", 
+                    "output" : "03-suma.ok",
+                    "points" : "20"
+                },
+                {
+                    "input" : "04-suma.in", 
+                    "output" : "04-suma.ok",
+                    "points" : "20"
+                },
+                {
+                    "input" : "05-suma.in", 
+                    "output" : "05-suma.ok",
+                    "points" : "20"
+                }
+            ]
+        },
+        {
+            "name": "texte",
+            "memoryLimit": "16000",
+            "timeLimit": "1000",
+            "tests": [
+                {
+                    "input" : "01-texte.in", 
+                    "output" : "01-texte.ok",
+                    "points" : "20"
+                },
+                {
+                    "input" : "02-texte.in", 
+                    "output" : "02-texte.ok",
+                    "points" : "20"
+                },
+                {
+                    "input" : "03-texte.in", 
+                    "output" : "03-texte.ok",
+                    "points" : "20"
+                },
+                {
+                    "input" : "04-texte.in", 
+                    "output" : "04-texte.ok",
+                    "points" : "20"
+                },
+                {
+                    "input" : "05-texte.in", 
+                    "output" : "05-texte.ok",
+                    "points" : "20"
+                }
+            ]
+        }
+    ],
+    "participants": [
+        {
+            "name": "dciorba",
+            "firstname": "Dumitru",
+            "lastname": "Ciorba",
+            "institution": "UTM"
+        },
+        {
+            "name": "ibercu",
+            "firstname": "Igor",
+            "lastname": "Bercu",
+            "institution": "AGE"
+        },
+        {
+            "name": "mcroitor",
+            "firstname": "Mihail",
+            "lastname": "Croitor",
+            "institution": "USM"
+        }
+    ]
+}
