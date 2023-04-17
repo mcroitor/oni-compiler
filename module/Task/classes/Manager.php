@@ -48,8 +48,8 @@ class Manager
      */
     public static function list(array $params): string
     {
-        $from = $params[0] ?? 1;
-        $offset = $params[1] ?? 20;
+        $from = empty($params[0]) ? 1 : (int)$params[0];
+        $offset = empty($params[1]) ? 20 : (int)$params[1];
 
         $db = new \mc\sql\database(\config::dsn);
         $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
@@ -64,6 +64,7 @@ class Manager
                 "<!-- name -->" => $task[\meta\tasks::NAME],
                 "<!-- memory -->" => $task[\meta\tasks::MEMORY],
                 "<!-- time -->" => $task[\meta\tasks::TIME],
+                "<!-- id -->" => $task[\meta\tasks::ID],
             ])->value();
         }
         return (new \mc\template(
@@ -71,5 +72,18 @@ class Manager
         ))->fill([
             "<!-- tasklist element -->" => $list
         ])->value();
+    }
+
+    /**
+     * remove task by ID then redirects to tasks list.
+     * @param array $params - first element contains task ID
+     */
+    public static function remove(array $params) {
+        $id = empty($params[0]) ? -1: (int)$params[0];
+        $db = new \mc\sql\database(config::dsn);
+        $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
+        $crud->delete($id);
+        header("location:/?q=task/list");
+        return "";
     }
 }
