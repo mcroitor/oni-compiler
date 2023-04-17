@@ -5,7 +5,9 @@ config::load_modules();
 
 $routes = [
     "/" => function () { return ""; },
-    "users/view" => function () { return \User\Manager::list(); }
+    "user/list" => function () { return \User\Manager::list(); },
+    "task/list" => "\Task\Manager::list",
+    "task/create" => "\Task\Manager::create",
 ];
 
 \mc\router::init($routes);
@@ -14,9 +16,9 @@ $result = \mc\router::run();
 $page = new \mc\template(file_get_contents(config::templates_dir . "/default.tpl.php"));
 
 $menu = new \core\html\widget\nav([
-    "Contests" => "/?q=contests/view",
-    "Tasks" => "/?q=tasks/view",
-    "Users" => "/?q=users/view",
+    "Contests" => "/?q=contest/view",
+    "Tasks" => "/?q=task/list",
+    "Users" => "/?q=user/list",
 ]);
 
 $page_data = [

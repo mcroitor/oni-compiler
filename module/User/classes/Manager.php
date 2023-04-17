@@ -8,7 +8,7 @@ use mc\template;
 class Manager
 {
     public const dir = config::module_dir . "/User/";
-    public const templates_dir = Manager::dir . "/templates/";
+    public const templates_dir = self::dir . "/templates/";
 
     public static function init()
     {
