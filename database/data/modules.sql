@@ -1,4 +1,4 @@
 INSERT INTO modules (name, version) VALUES
-    ("UserManager", "20230416"),
-    ("TaskManager", "20230416"),
-    ("ContestManager", "20230416");
+    ("User", "20230416"),
+    ("Task", "20230416"),
+    ("Contest", "20230416");

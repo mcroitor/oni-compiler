@@ -8,5 +8,5 @@ CREATE TABLE IF NOT EXISTS users (
     lastname TEXT,
     institution TEXT,
     role_id INTEGER DEFAULT 1,
-    FOREIGN KEY (role_id) REFERENCES role (id)
+    FOREIGN KEY (role_id) REFERENCES roles (id)
 );

@@ -77,4 +77,3 @@ class config {
 }
 
 config::core();
-config::load_modules();

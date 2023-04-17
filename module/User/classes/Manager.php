@@ -1,14 +1,14 @@
 <?php
 
-namespace UserManager;
+namespace User;
 
 use config;
 use mc\template;
 
-class User
+class Manager
 {
-    public const dir = config::module_dir . "/UserManager/";
-    public const templates_dir = User::dir . "/templates/";
+    public const dir = config::module_dir . "/User/";
+    public const templates_dir = Manager::dir . "/templates/";
 
     public static function init()
     {

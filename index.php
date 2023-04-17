@@ -1,9 +1,11 @@
 <?php
+
 include_once (__DIR__ . "/config.php");
+config::load_modules();
 
 $routes = [
     "/" => function () { return ""; },
-    "users/view" => function () { return \UserManager\User::list(); }
+    "users/view" => function () { return \User\Manager::list(); }
 ];
 
 \mc\router::init($routes);
