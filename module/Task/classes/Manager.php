@@ -86,4 +86,24 @@ class Manager
         header("location:/?q=task/list");
         return "";
     }
+    
+    /**
+     * view a task by ID.
+     * @param array $params - first element contains task ID
+     */
+    public static function view(array $params) {
+        $id = empty($params[0]) ? -1: (int)$params[0];
+        $db = new \mc\sql\database(config::dsn);
+        $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
+        $task = $crud->select($id);
+        $tpl = new \mc\template(
+            file_get_contents(self::templates_dir . "task.view.tpl.php")
+        );
+        return $tpl->fill([
+            "<!-- task-name -->" => $task[\meta\tasks::NAME],
+            "<!-- task-description -->" => $task[\meta\tasks::DESCRIPTION],
+            "<!-- task-time -->" => $task[\meta\tasks::TIME],
+            "<!-- task-memory -->" => $task[\meta\tasks::MEMORY],
+        ])->value();
+    }
 }
