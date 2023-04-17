@@ -5,6 +5,8 @@
             <th>name</th>
             <th>memory</th>
             <th>time</th>
+            <th>edit</th>
+            <th>remove</th>
         </tr>
     </thead>
     <tbody>

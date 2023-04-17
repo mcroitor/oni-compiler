@@ -5,12 +5,10 @@ config::load_modules();
 
 $routes = [
     "/" => function () { return ""; },
-    "user/list" => function () { return \User\Manager::list(); },
-    "task/list" => "\Task\Manager::list",
-    "task/create" => "\Task\Manager::create",
 ];
 
 \mc\router::init($routes);
+
 $result = \mc\router::run();
 
 $page = new \mc\template(file_get_contents(config::templates_dir . "/default.tpl.php"));
