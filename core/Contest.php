@@ -2,6 +2,9 @@
 
 namespace mc;
 
+/**
+ * 
+ */
 class Contest
 {
     private const CONTESTANTS = "contestants";

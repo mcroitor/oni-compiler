@@ -6,6 +6,7 @@
         <!-- additional_meta -->
         <link rel="stylesheet" href="./styles/normalize.css" />
         <link rel="stylesheet" href="./styles/skeleton.css" />
+        <link rel="stylesheet" href="./styles/defines.css" />
     </head>
     <body>
         <div id="page-container" class="container">

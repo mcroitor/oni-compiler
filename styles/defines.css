@@ -1,0 +1,28 @@
+.menu {
+    margin: 13px 0 0 0;
+}
+
+.menu ul li {
+    display: inline;
+    margin: 0 20px 0 0;
+    margin-bottom: 130px;
+}
+
+.menu a {
+    text-decoration: none;
+    text-transform: uppercase;
+}
+
+.menu a:hover {
+    text-decoration: underline;
+}
+
+.menu .active {
+    border-bottom-width: 0px!important;
+    border-bottom-left-radius: 0px;
+    border-bottom-right-radius: 0px;
+}
+
+.menu .inactive {
+    border-width: 0px!important;
+}

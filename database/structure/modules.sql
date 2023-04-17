@@ -1,0 +1,5 @@
+CREATE TABLE modules (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    name TEXT NOT NULL,
+    version TEXT NOT NULL
+);
