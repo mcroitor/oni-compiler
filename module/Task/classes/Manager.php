@@ -11,13 +11,15 @@ class Manager
     public const dir = \config::module_dir . "/task/";
     public const templates_dir = self::dir . "/templates/";
 
-    private static function getTaskPath(string $taskId) {
+    private static function getTaskPath(string $taskId)
+    {
         return \config::tasks_dir . "{$taskId}/";
     }
 
-    private static function getTestTaskPath(string $taskId) {
+    private static function getTestTaskPath(string $taskId)
+    {
         return self::getTaskPath($taskId) . "tests/";
-    } 
+    }
 
     /**
      * show form for task creation or, if POST data is present,
@@ -218,7 +220,31 @@ class Manager
 
     public static function import(array $params)
     {
-        $taskId = empty($params[0]) ? -1 : (int)$params[0];
+        if (isset($_POST["task-import"])) {
+            self::importTask();
+            header("location:/?q=task/list");
+            exit();
+        }
+
+        $tpl = new \mc\template(
+            file_get_contents(self::templates_dir . "task.import.tpl.php")
+        );
+        return $tpl->value();
+    }
+
+    protected static function importTask()
+    {
+        $za = new ZipArchive;
+        $za->open($_FILES['tests']['tmp_name'], ZipArchive::RDONLY);
+        $json = $za->getFromName("task.json");
+        $za->close();
+        $task = (array)json_decode($json);
+        unset($task[\meta\tasks::ID]);
+
+        $db = new \mc\sql\database(config::dsn);
+        $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
+        \mc\logger::stdout()->info("data prepared: " . json_encode($task));
+        $taskId = $crud->insert($task);
         return $taskId;
     }
 }

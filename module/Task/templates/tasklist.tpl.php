@@ -1,5 +1,7 @@
 <a href="/?q=task/create" class="button">Create new task</a>
-<table class='u-full-width' id='data-table'>
+<a href="/?q=task/import" class="button">Import task</a>
+<table class='u-full-width'>
+    <caption></caption>
     <thead>
         <tr>
             <th>name</th>
