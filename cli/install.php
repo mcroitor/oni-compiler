@@ -36,7 +36,7 @@ $db->query_sql("PRAGMA foreign_keys = ON;");
 $stdout->info("create tables");
 
 foreach ($TABLE_SCHEMA as $table) {
-    $query = file_get_contents(config::data_dir . "/structure/{$table}.sql");
+    $query = file_get_contents(config::database_dir . "/structure/{$table}.sql");
     $stdout->info("create table {$table}");
     $stdout->info("table schema: {$query}");
     $db->query_sql($query);
@@ -47,7 +47,7 @@ $stdout->info("all tables are created.");
 $stdout->info("create initial data.");
 
 foreach ($TABLE_DATA as $data){
-    $dump_file = config::data_dir . "/data/{$data}.sql";
+    $dump_file = config::database_dir . "/data/{$data}.sql";
     $stdout->info("insert data into {$data}");
     $db->parse_sqldump($dump_file);
     $stdout->info("data for `{$data}` is created");

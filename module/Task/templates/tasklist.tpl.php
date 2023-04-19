@@ -5,7 +5,9 @@
             <th>name</th>
             <th>memory</th>
             <th>time</th>
+            <th>tests</th>
             <th>edit</th>
+            <th>export</th>
             <th>remove</th>
         </tr>
     </thead>

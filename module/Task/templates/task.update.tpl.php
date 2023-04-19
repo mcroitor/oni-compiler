@@ -1,4 +1,5 @@
-<form method="post" action="/?q=task/create">
+<form method="post" action="/?q=task/update">
+    <input type="hidden" name="task-id" id="task-id" value="<!-- task-id -->" />
     <fieldset>
         <table class='u-full-width'>
             <caption></caption>
@@ -12,7 +13,8 @@
                     <label for="task-name">name</label>
                 </td>
                 <td class="nine">
-                    <input type="text" name="task-name" id="task-name" class='u-full-width' />
+                    <input type="text" name="task-name" id="task-name"
+                        class='u-full-width' value="<!-- task-name -->" />
                 </td>
             </tr>
             <tr>
@@ -20,7 +22,8 @@
                     <label for="task-description">description</label>
                 </td>
                 <td>
-                    <textarea name="task-description" id="task-description" class='u-full-width'></textarea>
+                    <textarea name="task-description" id="task-description"
+                        class='u-full-width'><!-- task-description --></textarea>
                 </td>
             </tr>
             <tr>
@@ -28,7 +31,7 @@
                     <label for="task-memory">memory, MB</label>
                 </td>
                 <td>
-                    <input type="number" min="1" max="256" value="8"
+                    <input type="number" min="1" max="256" value="<!-- task-memory -->"
                         name="task-memory" id="task-memory" class='u-full-width' />
                 </td>
             </tr>
@@ -37,11 +40,11 @@
                     <label for="task-time">time, ms</label>
                 </td>
                 <td>
-                    <input type="number" min="100" max="10000" value="1000"
+                    <input type="number" min="100" max="10000" value="<!-- task-time -->"
                         name="task-time" id="task-time" class='u-full-width' />
                 </td>
             </tr>
         </table>
     </fieldset>
-    <input type="submit" name="create-task" value="Create" />
+    <input type="submit" name="update-task" value="Update" />
 </form>
