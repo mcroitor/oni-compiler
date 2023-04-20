@@ -11,7 +11,6 @@ class TestUploader {
         $task_id = (int)filter_input(INPUT_POST, "task-id");
         $input_pattern = filter_input(INPUT_POST, "input-pattern");
         $output_pattern = filter_input(INPUT_POST, "output-pattern");
-        $override = (bool)filter_input(INPUT_POST, "override");
 
         $file_name = basename($_FILES['tests']['name']);
 
@@ -39,11 +38,14 @@ class TestUploader {
     }
 
     private static function clean(string $dir, string $input_pattern, string $output_pattern) {
+        $input_pattern = "/" . str_replace("*", "(.+)", $input_pattern) . "/";
+        $output_pattern = "/" . str_replace("*", "(.+)", $output_pattern) . "/";
         $tests = [];
         $files = scandir($dir);
 
         foreach ($files as $file) {
             // check filename by input pattern
+            $label = self::get_label($file, $input_pattern);
             
         }
         return $tests;
@@ -55,9 +57,9 @@ class TestUploader {
         }
     }
 
-    private static function get_test_label(string $input, string $input_pattern) {
-        list($left, $right) = explode("*", $input_pattern);
-        $test_label = str_replace([$left, $right], ["", ""], $input);
-        return $left . $test_label . $right == $input ? $test_label : false;
-    }
+    private static function get_label(string $input, string $pattern) {
+        $matches = [];
+        preg_match($pattern, $input, $matches);
+        return empty($matches) ? false : $matches[1];
+      }
 }
