@@ -1,1 +1,5 @@
+# skip database
 *.sqlite
+
+# skip tasks and contests
+data/

@@ -4,14 +4,17 @@ class config {
     public const root_dir = __DIR__;
     public const core_dir = __DIR__ . "/core/";
     public const module_dir = __DIR__ . "/module/";
-    public const data_dir = __DIR__ . "/database/";
+    public const database_dir = __DIR__ . "/database/";
+    public const data_dir = __DIR__ . "/data/";
     public const templates_dir = __DIR__ . "/templates/";
     public const styles_dir = __DIR__ . "/styles/";
-    public const contests_dir = self::root_dir . "/contests/";
+    public const contests_dir = self::data_dir . "/contests/";
+    public const tasks_dir = self::data_dir . "/tasks/";
+    public const tmp_dir = self::data_dir . "/tmp/";
     
     public const salt = "unpredictable_salt_value";
     
-    public const dsn = "sqlite:" . self::data_dir . "/database.sqlite";
+    public const dsn = "sqlite:" . self::database_dir . "/database.sqlite";
 
     private const CORE = [
         "mc/classifier",
