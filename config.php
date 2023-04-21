@@ -33,6 +33,7 @@ class config {
         "meta/roles",
         "meta/solutions",
         "meta/tasks",
+        "meta/task_tests",
         "meta/users",
 // html
         "html/style",

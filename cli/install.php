@@ -12,6 +12,7 @@ $TABLE_SCHEMA = [
     "contestants",
     "contest_tasks",
     "solutions",
+    "task_tests",
     "modules",
 ];
 

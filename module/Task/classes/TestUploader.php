@@ -3,63 +3,73 @@
 namespace Task;
 
 use config;
+use mc\logger;
 use ZipArchive;
+use mc\sql\database;
 
-class TestUploader {
+class TestUploader
+{
+    public static function upload(array $params)
+    {
+        $taskId = (int)filter_input(INPUT_POST, "task-id");
+        $inputPattern = filter_input(INPUT_POST, "input-pattern");
+        $outputPattern = filter_input(INPUT_POST, "output-pattern");
 
-    public static function upload(array $params) {
-        $task_id = (int)filter_input(INPUT_POST, "task-id");
-        $input_pattern = filter_input(INPUT_POST, "input-pattern");
-        $output_pattern = filter_input(INPUT_POST, "output-pattern");
+        $tmpFile = $_FILES['tests']['tmp_name'];
+        $outDir = config::tasks_dir . "/{$taskId}/tests/";
 
-        $file_name = basename($_FILES['tests']['name']);
+        if (!file_exists($outDir)) {
+            mkdir($outDir);
+        }
 
-        $tmp_file = $_FILES['tests']['tmp_name'];
-        $zip_file = config::tmp_dir . "/{$task_id}-{$file_name}";
-        $out_dir = config::tasks_dir . "/{$task_id}/tests/";
-        self::copy($tmp_file, $zip_file);
-        self::unpack($zip_file, $out_dir);
-        $tests = self::clean($out_dir, $input_pattern, $output_pattern);
-        self::register($tests);
-        header("location:/?q=task/view/{$task_id}");
+        $db = new database(config::dsn);
+
+        $tests = [];
+        $zip = new ZipArchive;
+        $zip->open($tmpFile, ZipArchive::RDONLY);
+
+        for ($i = 0; $i < $zip->count(); ++$i) {
+            $in = $zip->getNameIndex($i);
+            $label = self::getLabel($in, $inputPattern);
+
+            if ($label === false) {
+                continue;
+            }
+            $out = str_replace('*', $label, $outputPattern);
+            if ($zip->locateName($out) === false) {
+                continue;
+            }
+            $tests[$label] = ["in" => $in, "out" => $out, "label" => $label];
+        }
+
+        $points = round(100 / count($tests), 2);
+
+        foreach ($tests as $test) {
+            file_put_contents($outDir . $test["in"], $zip->getFromName($test["in"]));
+            file_put_contents($outDir . $test["out"], $zip->getFromName($test["out"]));
+        }
+        
+        $db->delete(\meta\task_tests::__name__, [\meta\task_tests::TASK_ID => $taskId]);
+
+        foreach ($tests as $test) {
+            $db->insert(\meta\task_tests::__name__, [
+                \meta\task_tests::INPUT => $test["in"],
+                \meta\task_tests::OUTPUT => $test["out"],
+                \meta\task_tests::LABEL => $test["label"],
+                \meta\task_tests::TASK_ID => $taskId,
+                \meta\task_tests::POINTS => $points,
+            ]);
+        }
+
+        header("location:/?q=task/view/{$taskId}");
         return "";
     }
-    
-    private static function copy(string $from, string $to) {
-        // TODO #: validate possibility of copy / move
-        move_uploaded_file($from, $to);
-    }
 
-    private static function unpack(string $zip, string $out) {
-        $za = new ZipArchive;
-        $za->open($zip, ZipArchive::RDONLY);
-        $za->extractTo($out);
-        $za->close();
-    }
-
-    private static function clean(string $dir, string $input_pattern, string $output_pattern) {
-        $input_pattern = "/" . str_replace("*", "(.+)", $input_pattern) . "/";
-        $output_pattern = "/" . str_replace("*", "(.+)", $output_pattern) . "/";
-        $tests = [];
-        $files = scandir($dir);
-
-        foreach ($files as $file) {
-            // check filename by input pattern
-            $label = self::get_label($file, $input_pattern);
-            
-        }
-        return $tests;
-    }
-
-    private static function register(array $tests) {
-        foreach ($tests as $test) {
-            // register test
-        }
-    }
-
-    private static function get_label(string $input, string $pattern) {
+    private static function getLabel(string $input, string $pattern): string | false
+    {
         $matches = [];
+        $pattern = "/" . str_replace("*", "(.+)", $pattern) . "/";
         preg_match($pattern, $input, $matches);
         return empty($matches) ? false : $matches[1];
-      }
+    }
 }
