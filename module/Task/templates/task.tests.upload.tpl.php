@@ -8,8 +8,6 @@
         <input type="text" name="input-pattern" value="input*.txt" />
         <label for="output-pattern">Output pattern</label>
         <input type="text" name="output-pattern" value="output*.txt" />
-        <label for="override">Override old tests</label>
-        <input type="checkbox" name="override" />
     </fieldset>
     <input type="submit" name="tests-upload" />
 </form>
