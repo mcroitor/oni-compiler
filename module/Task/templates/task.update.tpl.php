@@ -47,4 +47,5 @@
         </table>
     </fieldset>
     <input type="submit" name="update-task" value="Update" />
+    <a href="/?q=task/tests/<!-- task-id -->" class="button">Update tests</a>
 </form>

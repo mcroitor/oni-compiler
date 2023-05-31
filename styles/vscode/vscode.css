@@ -1,0 +1,20 @@
+/**
+ * color scheme Light (Visual Studio)
+ */
+
+.editor {
+    background-color: #FFFFFF;
+    color: #000000;
+}
+
+.editor::selection {
+    background-color: #ADD6FF80;
+}
+
+.list:hover {
+    background-color: #E8E8E8;
+}
+
+.menu {
+    border-color: #D4D4D4;
+}
