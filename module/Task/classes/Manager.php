@@ -29,9 +29,9 @@ class Manager
     public static function create(array $params)
     {
         if (isset($_POST["create-task"])) {
-            $task_id = self::insertData();
-            self::createStructure($task_id);
-            header("location:/?q=task/update/{$task_id}");
+            $taskId = self::insertData();
+            self::createStructure($taskId);
+            header("location:/?q=task/update/{$taskId}");
             return "";
         }
 
@@ -60,6 +60,7 @@ class Manager
             "<!-- task-description -->" => $task[\meta\tasks::DESCRIPTION],
             "<!-- task-memory -->" => $task[\meta\tasks::MEMORY],
             "<!-- task-time -->" => $task[\meta\tasks::TIME],
+            "<!-- task-tests -->" => self::getTaskTests($task_id),
         ])->value();
     }
 
@@ -103,10 +104,10 @@ class Manager
     /**
      * create new folder for task.
      */
-    private static function createStructure(string $task_id)
+    private static function createStructure(string $taskId)
     {
-        mkdir(self::getTaskPath($task_id));
-        mkdir(self::getTestTaskPath($task_id));
+        mkdir(self::getTaskPath($taskId));
+        mkdir(self::getTestTaskPath($taskId));
     }
 
     /**
@@ -246,5 +247,20 @@ class Manager
         \mc\logger::stdout()->info("data prepared: " . json_encode($task));
         $taskId = $crud->insert($task);
         return $taskId;
+    }
+
+    protected static function getTaskTests($taskId) {
+        $db = new \mc\sql\database(config::dsn);
+        $tests = $db->select(\meta\task_tests::__name__, ["*"], [\meta\task_tests::TASK_ID => $taskId]);
+
+        $result = "";
+        foreach ($tests as $test) {
+            $input = $test[\meta\task_tests::INPUT];
+            $output = $test[\meta\task_tests::OUTPUT];
+            $label = $test[\meta\task_tests::LABEL];
+            $points = $test[\meta\task_tests::POINTS];
+            $result .= "<tr><td>{$label}</td><td>{$input}</td><td>{$output}</td><td>{$points}</td></tr>\n";
+        }
+        return $result;
     }
 }

@@ -27,7 +27,9 @@
     border-width: 0px!important;
 }
 
-h4.subtitle {
-    padding-top: 10px;
+h3.header {
     border-bottom: 1px solid #ccc;
+}
+h4.subtitle {
+    padding-top: 2rem;
 }

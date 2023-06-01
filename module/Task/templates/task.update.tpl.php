@@ -9,10 +9,10 @@
                 </th>
             </tr>
             <tr>
-                <td class="three">
+                <td>
                     <label for="task-name">name</label>
                 </td>
-                <td class="nine">
+                <td>
                     <input type="text" name="task-name" id="task-name"
                         class='u-full-width' value="<!-- task-name -->" />
                 </td>
@@ -45,6 +45,23 @@
                 </td>
             </tr>
         </table>
+        <div class="footer row">
+            <h4 class="subtitle row">Tests</h4>
+            <table class='u-full-width'>
+                <caption></caption>
+                <thead>
+                    <tr>
+                        <th>label</th>
+                        <th>input</th>
+                        <th>output</th>
+                        <th>points</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- task-tests -->
+                </tbody>
+            </table>
+        </div>
     </fieldset>
     <input type="submit" name="update-task" value="Update" />
     <a href="/?q=task/tests/<!-- task-id -->" class="button">Update tests</a>

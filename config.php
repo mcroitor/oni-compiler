@@ -4,7 +4,7 @@ class config {
     public const root_dir = __DIR__;
     public const core_dir = __DIR__ . "/core/";
     public const module_dir = __DIR__ . "/module/";
-    public const database_dir = __DIR__ . "/database/";
+    public const database_dir = __DIR__ . "/data/";
     public const data_dir = __DIR__ . "/data/";
     public const templates_dir = __DIR__ . "/templates/";
     public const styles_dir = __DIR__ . "/styles/";
