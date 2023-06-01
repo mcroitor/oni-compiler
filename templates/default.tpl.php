@@ -4,10 +4,10 @@
         <title>sample</title>
         <meta encoding=UTF-8" />
         <!-- additional_meta -->
-        <script src='https://kit.fontawesome.com/a076d05399.js' crossorigin='anonymous'></script>
         <link rel="stylesheet" href="./styles/normalize.css" />
         <link rel="stylesheet" href="./styles/skeleton.css" />
         <link rel="stylesheet" href="./styles/defines.css" />
+        <link rel="stylesheet" href="./scripts/smde/simplemde.min.css" />
     </head>
     <body>
         <div id="page-container" class="container">

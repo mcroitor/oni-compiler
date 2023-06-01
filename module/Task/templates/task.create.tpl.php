@@ -1,3 +1,4 @@
+<script src="./scripts/smde/simplemde.min.js"></script>
 <form method="post" action="/?q=task/create">
     <fieldset>
         <table class='u-full-width'>
@@ -45,3 +46,6 @@
     </fieldset>
     <input type="submit" name="create-task" value="Create" />
 </form>
+<script>
+var simplemde = new SimpleMDE({ element: document.getElementById("task-description") });
+</script>

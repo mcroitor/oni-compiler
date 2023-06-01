@@ -3,3 +3,6 @@
 
 # skip tasks and contests
 data/
+
+# skip tmp
+__tmp__/

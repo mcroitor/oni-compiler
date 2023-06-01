@@ -4,11 +4,13 @@ PORT=8000
 DATABASE=data/database.sqlite
 METAGEN=php ./tools/metadb/generator.php
 METAPATH=./core/meta/
+MODMAN=./tools/module_manager/src/manager.php
 
-.all: install start
+.all: start
 
 install:
 	mkdir --parents ./data/contests/ ./data/tasks/ ./data/tmp/; \
+	php $(MODMAN) --install --config=./tools/module_manager/modules.json
 	${PHP} ./cli/install.php
 
 start:

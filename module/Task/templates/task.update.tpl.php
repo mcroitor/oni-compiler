@@ -1,3 +1,4 @@
+<script src="./scripts/smde/simplemde.min.js"></script>
 <form method="post" action="/?q=task/update">
     <input type="hidden" name="task-id" id="task-id" value="<!-- task-id -->" />
     <fieldset>
@@ -65,4 +66,8 @@
     </fieldset>
     <input type="submit" name="update-task" value="Update" />
     <a href="/?q=task/tests/<!-- task-id -->" class="button">Update tests</a>
+    <a href="/?q=task/list" class="button">Back to tasks</a>
 </form>
+<script>
+var simplemde = new SimpleMDE({ element: document.getElementById("task-description") });
+</script>

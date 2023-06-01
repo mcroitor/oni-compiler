@@ -33,3 +33,8 @@ h3.header {
 h4.subtitle {
     padding-top: 2rem;
 }
+
+.icon {
+    width: 24px;
+    height: 24px;
+}

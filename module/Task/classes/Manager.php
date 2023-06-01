@@ -170,6 +170,11 @@ class Manager
         $db = new \mc\sql\database(config::dsn);
         $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
         $task = $crud->select($id);
+
+        if (empty($task)) {
+            return "";
+        }
+
         $tpl = new \mc\template(
             file_get_contents(self::templates_dir . "task.view.tpl.php")
         );
