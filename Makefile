@@ -1,14 +1,14 @@
 PHP=php.exe
 HOST=localhost
 PORT=8000
-DATABASE=database/database.sqlite
+DATABASE=data/database.sqlite
 METAGEN=php ./tools/metadb/generator.php
 METAPATH=./core/meta/
 
 .all: install start
 
 install:
-	mkdir -P ./data/contests/ ./data/tasks/ ./data/tmp/; \
+	mkdir --parents ./data/contests/ ./data/tasks/ ./data/tmp/; \
 	${PHP} ./cli/install.php
 
 start:

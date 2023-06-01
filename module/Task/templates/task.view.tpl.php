@@ -1,10 +1,8 @@
 <article class="container">
-    <div class="header row">
-        <h3 class="twelve columns"><!-- task-name --></h3>
-    </div>
+    <h3 class="header row"><!-- task-name --></h3>
     <h4 class="subtitle row">Description</h4>
     <div class="body row">
-        <div class="twelve columns">
+        <div>
             <!-- task-description -->
         </div>
     </div>
@@ -14,12 +12,12 @@
             <caption></caption>
             <tbody>
                 <tr>
-                    <th class="four">time limit, ms</th>
-                    <td class="eight"><!-- task-time --></td>
+                    <th>time limit, ms</th>
+                    <td><!-- task-time --></td>
                 </tr>
                 <tr>
-                    <th class="four">memory limit, mb</th>
-                    <td class="eight"><!-- task-memory --></td>
+                    <th>memory limit, mb</th>
+                    <td><!-- task-memory --></td>
                 </tr>
             </tbody>
         </table>
