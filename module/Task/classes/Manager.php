@@ -154,8 +154,12 @@ class Manager
     {
         $id = empty($params[0]) ? -1 : (int)$params[0];
         $db = new \mc\sql\database(config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
-        $crud->delete($id);
+        
+        $db->delete(\meta\tasks::__name__, [\meta\tasks::ID => $id]);
+        // delete tests
+        $db->delete(\meta\task_tests::__name__, [\meta\task_tests::TASK_ID => $id]);
+        // delete files
+        // TODO #: implement this
         header("location:/?q=task/list");
         return "";
     }
@@ -206,14 +210,29 @@ class Manager
     {
         $taskId = empty($params[0]) ? -1 : (int)$params[0];
         $db = new \mc\sql\database(config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
-        $task = $crud->select($taskId);
 
         $fileName = "task_{$taskId}.zip";
         $filePath = self::getTaskPath($taskId) . $fileName;
+        $testsDir = \mc\filesystem::implode(self::getTaskPath($taskId), "tests");
+        
+        // prepare task definition
+        $task = $db->select(\meta\tasks::__name__, ['*'],  [\meta\tasks::ID => $taskId])[0];
+        // prepare tests definition
+        $task_tests = $db->select(\meta\task_tests::__name__, ['*'],  [\meta\task_tests::TASK_ID => $taskId]);
+
         $za = new ZipArchive;
         $za->open($filePath, ZipArchive::CREATE);
         $za->addFromString("task.json", json_encode($task));
+        $za->addFromString("tests.json", json_encode($task_tests));
+
+        // add tests
+        $za->addEmptyDir("tests");
+        foreach ($task_tests as $test) {
+            $inputTestFile = \mc\filesystem::implode($testsDir, $test[\meta\task_tests::INPUT]);
+            $outputTestFile = \mc\filesystem::implode($testsDir, $test[\meta\task_tests::OUTPUT]);
+            $za->addFile($inputTestFile, "tests/" . $test[\meta\task_tests::INPUT]);
+            $za->addFile($outputTestFile, "tests/" . $test[\meta\task_tests::OUTPUT]);
+        }
         $za->close();
 
         header("Content-Type: application/zip");
@@ -240,17 +259,37 @@ class Manager
 
     protected static function importTask()
     {
-        $za = new ZipArchive;
-        $za->open($_FILES['tests']['tmp_name'], ZipArchive::RDONLY);
-        $json = $za->getFromName("task.json");
-        $za->close();
-        $task = (array)json_decode($json);
-        unset($task[\meta\tasks::ID]);
-
         $db = new \mc\sql\database(config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
+        $za = new ZipArchive;
+        
+        $za->open($_FILES['tests']['tmp_name'], ZipArchive::RDONLY);
+        // task definition
+        $taskDefinition = $za->getFromName("task.json");
+        $task = (array)json_decode($taskDefinition);
+        unset($task[\meta\tasks::ID]);
+        
         \mc\logger::stdout()->info("data prepared: " . json_encode($task));
-        $taskId = $crud->insert($task);
+        $taskId = $db->insert(\meta\tasks::__name__, $task);
+        
+        // tests definition
+        self::createStructure($taskId);
+        $outDir = self::getTestTaskPath($taskId);
+        $testsDefinition = $za->getFromName("tests.json");
+        $tests = (array)json_decode($testsDefinition);
+        foreach ($tests as $test) {
+            $test = (array)$test;
+            unset($test[\meta\task_tests::ID]);
+            $test[\meta\task_tests::TASK_ID] = $taskId;
+            $db->insert(\meta\task_tests::__name__, $test);
+            file_put_contents($outDir . $test["input"], $za->getFromName("tests/" . $test["input"]));
+            file_put_contents($outDir . $test["output"], $za->getFromName("tests/" . $test["output"]));
+        }
+
+        // extract tests
+        self::createStructure($taskId);
+
+
+        $za->close();
         return $taskId;
     }
 

@@ -6,7 +6,13 @@ METAGEN=php ./tools/metadb/generator.php
 METAPATH=./core/meta/
 MODMAN=./tools/module_manager/src/manager.php
 
-.all: start
+help:
+	@echo "usage:"; \
+	echo "  make install - create database"; \
+	echo "  make start   - start web server"; \
+	echo "  make clean   - remove database"; \
+	echo "  make meta    - recreate meta information"; \
+	echo "  make rebuild - clean install meta";
 
 install:
 	mkdir --parents ./data/contests/ ./data/tasks/ ./data/tmp/; \
@@ -24,11 +30,3 @@ meta:
 	${METAGEN} --dsn='sqlite:${DATABASE}' --output=${METAPATH}
 
 rebuild: clean install meta
-
-help:
-	@echo "usage:"; \
-	echo "  make install - create database"; \
-	echo "  make start   - start web server"; \
-	echo "  make clean   - remove database"; \
-	echo "  make meta    - recreate meta information"; \
-	echo "  make rebuild - clean install meta";
