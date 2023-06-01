@@ -65,7 +65,7 @@ class config {
 
     public static function core() {
         foreach (self::CORE as $module) {
-            include_once (self::core_dir . "{$module}.php");
+            include_once self::core_dir . "{$module}.php";
         }
     }
 

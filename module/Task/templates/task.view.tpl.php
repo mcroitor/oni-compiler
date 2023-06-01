@@ -1,10 +1,8 @@
+<script src="./scripts/showdown.js"></script>
 <article class="container">
     <h3 class="header row"><!-- task-name --></h3>
-    <h4 class="subtitle row">Description</h4>
     <div class="body row">
-        <div>
-            <!-- task-description -->
-        </div>
+        <div id="task-description"><!-- task-description --></div>
     </div>
     <h4 class="subtitle row">Limits</h4>
     <div class="footer row">
@@ -24,5 +22,13 @@
     </div>
 </article>
 <div class="container">
-    <a href="/?q=task/list" class="button">Back to tasks list</a>
+    <a href="/?q=task/list" class="button">Back to tasks</a>
 </div>
+<script>
+function get(id) {
+    return document.getElementById(id);
+}
+var converter = new showdown.Converter();
+
+get("task-description").innerHTML = converter.makeHtml(get("task-description").innerHTML);
+</script>
