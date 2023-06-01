@@ -3,7 +3,6 @@
 namespace Task;
 
 use config;
-use mc\logger;
 use ZipArchive;
 use mc\sql\database;
 
@@ -44,24 +43,22 @@ class TestUploader
 
         $points = round(100 / count($tests), 2);
 
-        foreach ($tests as $test) {
-            file_put_contents($outDir . $test["in"], $zip->getFromName($test["in"]));
-            file_put_contents($outDir . $test["out"], $zip->getFromName($test["out"]));
-        }
-        
         $db->delete(\meta\task_tests::__name__, [\meta\task_tests::TASK_ID => $taskId]);
 
         foreach ($tests as $test) {
-            $db->insert(\meta\task_tests::__name__, [
+            $testDescription = [
                 \meta\task_tests::INPUT => $test["in"],
                 \meta\task_tests::OUTPUT => $test["out"],
                 \meta\task_tests::LABEL => $test["label"],
                 \meta\task_tests::TASK_ID => $taskId,
                 \meta\task_tests::POINTS => $points,
-            ]);
+            ];
+            file_put_contents($outDir . $test["in"], $zip->getFromName($test["in"]));
+            file_put_contents($outDir . $test["out"], $zip->getFromName($test["out"]));
+            $db->insert(\meta\task_tests::__name__, $testDescription);
         }
 
-        header("location:/?q=task/view/{$taskId}");
+        header("location:/?q=task/update/{$taskId}");
         return "";
     }
 
