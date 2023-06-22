@@ -19,6 +19,7 @@ $TABLE_SCHEMA = [
 $TABLE_DATA = [
     "capabilities",
     "roles",
+    "contests",
 //    "role_capabilities",
 //    "users",
     "modules",
