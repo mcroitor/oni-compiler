@@ -41,15 +41,13 @@ class Manager
     public static function update(array $params)
     {
         if (isset($_POST["update-task"])) {
-            $task_id = filter_input(INPUT_POST, "task-id");
+            $taskId = filter_input(INPUT_POST, "task-id");
             self::updateData();
-            header("location:/?q=task/update/{$task_id}");
+            header("location:/?q=task/update/{$taskId}");
             return "";
         }
-        $task_id = empty($params[0]) ? 0 : (int)$params[0];
-        $db = new \mc\sql\database(config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
-        $task = $crud->select($task_id);
+        $taskId = empty($params[0]) ? 0 : (int)$params[0];
+        $task = self::get($taskId);
         $tpl = new template(
             file_get_contents(self::templates_dir . "task.update.tpl.php")
         );
@@ -60,7 +58,7 @@ class Manager
             "<!-- task-description -->" => $task[\meta\tasks::DESCRIPTION],
             "<!-- task-memory -->" => $task[\meta\tasks::MEMORY],
             "<!-- task-time -->" => $task[\meta\tasks::TIME],
-            "<!-- task-tests -->" => self::getTaskTests($task_id),
+            "<!-- task-tests -->" => self::getTaskTests($taskId),
         ])->value();
     }
 
@@ -170,10 +168,8 @@ class Manager
      */
     public static function view(array $params)
     {
-        $id = empty($params[0]) ? -1 : (int)$params[0];
-        $db = new \mc\sql\database(config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
-        $task = $crud->select($id);
+        $taskId = empty($params[0]) ? -1 : (int)$params[0];
+        $task = self::get($taskId);
 
         if (empty($task)) {
             return "";
@@ -196,13 +192,13 @@ class Manager
      */
     public static function tests(array $params)
     {
-        $id = empty($params[0]) ? -1 : (int)$params[0];
+        $taskId = empty($params[0]) ? -1 : (int)$params[0];
 
         $tpl = new \mc\template(
             file_get_contents(self::templates_dir . "task.tests.upload.tpl.php")
         );
         return $tpl->fill([
-            "<!-- task-id -->" => $id,
+            "<!-- task-id -->" => $taskId,
         ])->value();
     }
 
@@ -295,7 +291,10 @@ class Manager
 
     protected static function getTaskTests($taskId) {
         $db = new \mc\sql\database(config::dsn);
-        $tests = $db->select(\meta\task_tests::__name__, ["*"], [\meta\task_tests::TASK_ID => $taskId]);
+        $tests = $db->select(
+            \meta\task_tests::__name__,
+            ["*"],
+            [\meta\task_tests::TASK_ID => $taskId]);
 
         $result = "";
         foreach ($tests as $test) {
@@ -306,5 +305,11 @@ class Manager
             $result .= "<tr><td>{$label}</td><td>{$input}</td><td>{$output}</td><td>{$points}</td></tr>\n";
         }
         return $result;
+    }
+
+    public static function get($taskId) {
+        $db = new \mc\sql\database(config::dsn);
+        $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
+        return $crud->select($taskId);
     }
 }

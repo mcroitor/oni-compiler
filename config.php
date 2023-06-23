@@ -1,6 +1,8 @@
 <?php
 
 class config {
+    public const items_per_page = 20;
+    
     public const root_dir = __DIR__;
     public const core_dir = __DIR__ . "/core/";
     public const module_dir = __DIR__ . "/module/";
