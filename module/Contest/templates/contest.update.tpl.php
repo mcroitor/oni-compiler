@@ -64,5 +64,6 @@
         </div>
     </fieldset>
     <input type="submit" name="update-contest" value="Update" />
+    <a href="/?q=contest/tasks/<!-- contest-id -->" class="button">Add tasks</a>
     <a href="/?q=contest/list" class="button">Back to contests</a>
 </form>
