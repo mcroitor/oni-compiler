@@ -15,7 +15,7 @@ $result = \mc\router::run();
 $page = new \mc\template(file_get_contents(config::templates_dir . "/default.tpl.php"));
 
 $menu = (new \core\html\widget\nav([
-    "Contests" => "/?q=contest/view",
+    "Contests" => "/?q=contest/list",
     "Tasks" => "/?q=task/list",
     "Users" => "/?q=user/list",
 ]))->active($_SERVER["REQUEST_URI"]);
