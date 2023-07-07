@@ -242,7 +242,7 @@ class Manager
     public static function import(array $params)
     {
         if (isset($_POST["task-import"])) {
-            self::importTask();
+            self::importTask($_FILES['tests']['tmp_name']);
             header("location:/?q=task/list");
             exit();
         }
@@ -253,12 +253,16 @@ class Manager
         return $tpl->value();
     }
 
-    protected static function importTask()
+    public static function importTask($zip)
     {
+        if(file_exists($zip) === false) {
+            \mc\logger::stdout()->error("cant import task: file `{$zip}` does not exists");
+            return -1;
+        }
         $db = new \mc\sql\database(config::dsn);
         $za = new ZipArchive;
         
-        $za->open($_FILES['tests']['tmp_name'], ZipArchive::RDONLY);
+        $za->open($zip, ZipArchive::RDONLY);
         // task definition
         $taskDefinition = $za->getFromName("task.json");
         $task = (array)json_decode($taskDefinition);

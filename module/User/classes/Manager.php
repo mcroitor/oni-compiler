@@ -25,6 +25,12 @@ class Manager {
         }
         $user = new \meta\users($_SESSION["user"]);
     }
+    
+    public static function get($userId) {
+        $db = new \mc\sql\database(config::dsn);
+        $crud = new \mc\sql\crud($db, \meta\users::__name__);
+        return $crud->select($userId);
+    }
 
     public static function list() {
         $db = new \mc\sql\database(config::dsn);
