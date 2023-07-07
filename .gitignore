@@ -6,3 +6,4 @@ data/
 
 # skip tmp
 __tmp__/
+/nbproject/private/
