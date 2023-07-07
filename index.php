@@ -18,7 +18,7 @@ $menu = (new \core\html\widget\nav([
     "Contests" => "/?q=contest/list",
     "Tasks" => "/?q=task/list",
     "Users" => "/?q=user/list",
-]))->active($_SERVER["REQUEST_URI"]);
+]))->active(filter_input(INPUT_SERVER, "REQUEST_URI", FILTER_SANITIZE_URL));
 
 $page_data = [
     "<!-- page_header -->" => "<h2>Contest Manager</h2>",
