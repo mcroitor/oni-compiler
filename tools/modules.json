@@ -1,0 +1,35 @@
+[
+    {
+        "user" : "mcroitor",
+        "repository" : "database",
+        "destination" : "core",
+        "source" : "src"
+    },
+    {
+        "user": "mcroitor",
+        "repository": "logger",
+        "source": "src",
+        "destination" : "core"
+    },
+    {
+        "user" : "mcroitor",
+        "repository" : "router",
+        "destination" : "core",
+        "branch" : "master",
+        "source" : "src"
+    },
+    {
+        "user" : "mcroitor",
+        "repository" : "classifier",
+        "destination" : "core",
+        "branch" : "main",
+        "source" : "src"
+    },
+    {
+        "user" : "mcroitor",
+        "repository" : "template",
+        "branch" : "master",
+        "source" : "src",
+        "destination" : "core"
+    }
+]

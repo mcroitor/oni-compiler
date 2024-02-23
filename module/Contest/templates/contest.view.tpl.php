@@ -36,5 +36,6 @@
     </div>
 </article>
 <div class="container">
+    <a href="/?q=contest/import/solutions" class="button">Import solutions</a> 
     <a href="/?q=contest/list" class="button">Back to contests</a>
 </div>

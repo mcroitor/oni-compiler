@@ -14,9 +14,13 @@ help:
 	echo "  make meta    - recreate meta information"; \
 	echo "  make rebuild - clean install meta";
 
+prepare:
+	git clone https://github.com/mcroitor/metadb.git ./tools/metadb
+	git clone https://github.com/mcroitor/module_manager.git ./tools/module_manager
+
 install:
 	mkdir --parents ./data/contests/ ./data/tasks/ ./data/tmp/; \
-	php $(MODMAN) --install --config=./tools/module_manager/modules.json
+	php $(MODMAN) --install --config=./tools/modules.json
 	${PHP} ./cli/install.php
 
 start:
