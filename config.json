@@ -13,7 +13,7 @@
 		"extension": "php",
 		"compile": "",
 		"interpreter": "php.exe",
-		"execute": "{$app} {$source}"
+		"execute": "{$interpreter} {$source}"
 	},
 	{
 		"name": "C++",
