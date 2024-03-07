@@ -6,4 +6,8 @@ data/
 
 # skip tmp
 __tmp__/
-/nbproject/private/
+nbproject/
+
+# skip tools
+tools/metadb/
+tools/module_manager/

@@ -4,6 +4,7 @@ namespace User;
 
 use config;
 use mc\template;
+use mc\router;
 
 class Manager {
 
@@ -11,6 +12,7 @@ class Manager {
     public const templates_dir = self::dir . "/templates/";
 
     public static function init() {
+        session_start();
         if (empty($_SESSION["user"])) {
             $_SESSION["user"] = [
                 \meta\users::ID => 0,
@@ -23,7 +25,7 @@ class Manager {
                 \meta\users::ROLE_ID => 1
             ];
         }
-        $user = new \meta\users($_SESSION["user"]);
+        // $user = new \meta\users($_SESSION["user"]);
     }
     
     public static function get($userId) {
@@ -84,5 +86,45 @@ class Manager {
                 \meta\users::PASSWORD => '',
             ]);
         }
+    }
+
+    private static function cryptPassword($password) {
+        return crypt($password, config::salt);
+    }
+
+    #[router('user/login')]
+    public static function login() {
+        if (empty($_POST)) {
+            return (new template(
+                    file_get_contents(self::templates_dir . "login.tpl.php")
+                ))->value();
+        }
+        $db = new \mc\sql\database(config::dsn);
+
+        $login = filter_input(INPUT_POST, \meta\users::NAME);
+        $password = filter_input(INPUT_POST, \meta\users::PASSWORD);
+
+        $condition = [
+            \meta\users::NAME => $login,
+            \meta\users::PASSWORD => self::cryptPassword($password)
+        ];
+
+        $user = $db->select(\meta\users::__name__, ['*'], $condition);
+        if (empty($user)) {
+            return "login failed";
+        }
+        $_SESSION["user"] = $user[0];
+        return "login successful";
+    }
+
+    #[router('user/logout')]
+    public static function logout() {
+        unset($_SESSION["user"]);
+        header("location:/");
+        return "";
+    }
+
+    public static function isLogged() {
+        return $_SESSION["user"][\meta\users::ID] > 0;
     }
 }
