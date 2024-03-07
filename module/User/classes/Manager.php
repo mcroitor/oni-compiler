@@ -4,7 +4,7 @@ namespace User;
 
 use config;
 use mc\template;
-use mc\router;
+use \mc\router;
 
 class Manager {
 
@@ -67,6 +67,32 @@ class Manager {
         header("location:/?q=user/list");
         return "";
     }
+
+    // add user
+    #[router('user/add')]
+    public static function add() {
+        if(!empty($_POST["username"])) {
+            $userData = [
+                \meta\users::NAME => filter_input(INPUT_POST, "username"),
+                \meta\users::LASTNAME => filter_input(INPUT_POST, "lastname"),
+                \meta\users::FIRSTNAME => filter_input(INPUT_POST, "firstname"),
+                \meta\users::INSTITUTION => filter_input(INPUT_POST, "institution"),
+                \meta\users::EMAIL => filter_input(INPUT_POST, "email"),
+                \meta\users::PASSWORD => '',
+            ];
+            self::registerUser($userData);
+            header("location:/?q=user/list");
+            return "";
+        }
+        return (new template(
+                file_get_contents(self::templates_dir . "useradd.tpl.php")
+            ))->value();
+    }
+
+    private static function registerUser($userData) {
+        $crud = new \mc\sql\crud(new \mc\sql\database(\config::dsn), \meta\users::__name__);
+        $crud->insert($userData);
+    }
     
     private static function registerUsers() {
         \mc\logger::stdout()->info("file structure: " . json_encode($_FILES['csv_file']));
@@ -74,17 +100,17 @@ class Manager {
         $csvLines = file($_FILES['csv_file']['tmp_name']);
         
         $header = array_shift($csvLines);
-        $crud = new \mc\sql\crud(new \mc\sql\database(\config::dsn), \meta\users::__name__);
         foreach ($csvLines as $csvLine) {
             list($name, $lastname, $firstname, $institution, $email) = explode(";", $csvLine);
-            $crud->insert([
+            $userData = [
                 \meta\users::NAME => $name,
                 \meta\users::LASTNAME => $lastname,
                 \meta\users::FIRSTNAME => $firstname,
                 \meta\users::INSTITUTION => $institution,
                 \meta\users::EMAIL => $email,
                 \meta\users::PASSWORD => '',
-            ]);
+            ];
+            self::registerUser($userData);
         }
     }
 

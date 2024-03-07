@@ -14,6 +14,8 @@ class config {
     public const tasks_dir = self::data_dir . "/tasks/";
     public const tmp_dir = self::data_dir . "/tmp/";
     
+    public const languages_config = __DIR__ . "/config.json";
+    
     public const salt = "unpredictable_salt_value";
     
     public const dsn = "sqlite:" . self::database_dir . "/database.sqlite";

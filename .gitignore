@@ -8,6 +8,7 @@ data/
 __tmp__/
 nbproject/
 
-# skip tools
-tools/metadb/
+# skip external dependencies
 tools/module_manager/
+tools/metadb/
+

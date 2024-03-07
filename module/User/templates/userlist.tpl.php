@@ -5,6 +5,8 @@
     <input type="submit" />
 </form>
 
+<a href="/?q=user/add" class='button'>Add user</a>
+
 <table class='u-full-width' id='data-table'>
     <thead>
         <tr>

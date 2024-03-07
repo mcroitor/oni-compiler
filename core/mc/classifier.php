@@ -81,6 +81,7 @@ class classifier
 
     /**
      * Check if key exists.
+     * @param string $key
      * @return bool
      */
     public function has_key(string $key): bool
@@ -90,9 +91,10 @@ class classifier
 
     /**
      * Get key by value. If key does not exist, returns false
+     * @param string $value
      * @return int|string|false
      */
-    public function get_key_by_value($value): int|string|false
+    public function get_key_by_value(string $value): int|string|false
     {
         return array_search($value, $this->values);
     }
