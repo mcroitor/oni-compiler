@@ -145,7 +145,7 @@ class Manager {
 
     #[router('user/logout')]
     public static function logout() {
-        unset($_SESSION["user"]);
+        session_destroy();
         header("location:/");
         return "";
     }
