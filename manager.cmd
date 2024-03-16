@@ -21,10 +21,9 @@ set TMP_DIR=__tmp__
 rem tools directory
 set TOOLS_DIR=tools
 
-rem dependencies: 7z, wget, git
+rem dependencies: 7z, wget
 set WGET=wget.exe
 set SEVEN_ZIP=7z.exe
-set GIT=git.exe
 
 rem set PHP and GCC environment variables
 set PATH=%PATH%;%TOOLS_DIR%\php
@@ -103,14 +102,6 @@ goto :end
         echo %SEVEN_ZIP% found
     ) || (
         echo %SEVEN_ZIP% not found
-        goto :end
-    )
-
-    rem check if git --version can be executed
-    %GIT% --version 2>&1 >nul && (
-        echo %GIT% found
-    ) || (
-        echo %GIT% not found
         goto :end
     )
 
