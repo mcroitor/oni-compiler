@@ -2,34 +2,34 @@
     {
         "user" : "mcroitor",
         "repository" : "database",
-        "destination" : "core",
+        "destination" : "site/core",
         "source" : "src"
     },
     {
         "user": "mcroitor",
         "repository": "logger",
         "source": "src",
-        "destination" : "core"
+        "destination" : "site/core"
     },
     {
         "user" : "mcroitor",
         "repository" : "router",
-        "destination" : "core",
+        "destination" : "site/core",
         "branch" : "master",
         "source" : "src"
     },
     {
         "user" : "mcroitor",
         "repository" : "classifier",
-        "destination" : "core",
+        "destination" : "site/core",
         "branch" : "main",
         "source" : "src"
     },
     {
         "user" : "mcroitor",
         "repository" : "template",
-        "branch" : "master",
+        "branch" : "main",
         "source" : "src",
-        "destination" : "core"
+        "destination" : "site/core"
     }
 ]

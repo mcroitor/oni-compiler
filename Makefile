@@ -1,9 +1,10 @@
 PHP=php.exe
 HOST=localhost
 PORT=8000
-DATABASE=data/database.sqlite
+SITE=site
+DATABASE=./data/database.sqlite
 METAGEN=php ./tools/metadb/generator.php
-METAPATH=./core/meta/
+METAPATH=$(SITE)/core/meta/
 MODMAN=./tools/module_manager/src/manager.php
 
 help:
@@ -21,16 +22,17 @@ prepare:
 install:
 	mkdir --parents ./data/contests/ ./data/tasks/ ./data/tmp/; \
 	php $(MODMAN) --install --config=./tools/modules.json
-	${PHP} ./cli/install.php
+	$(PHP) $(SITE)/cli/install.php
 
 start:
-	php -S ${HOST}:${PORT}
+	php -S $(HOST):$(PORT) -t $(SITE)
 
 clean:
-	unlink ${DATABASE}
+	unlink $(DATABASE)
 
 meta:
 	@echo "recreate metadata"; \
-	${METAGEN} --dsn='sqlite:${DATABASE}' --output=${METAPATH}
+	$(METAGEN) --dsn='sqlite:$(DATABASE)' --output=$(METAPATH)
 
 rebuild: clean install meta
+	
