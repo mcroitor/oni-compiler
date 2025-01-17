@@ -8,7 +8,7 @@ config::load_modules();
 
 $routes = [
     "/" => function () {
-        return "";
+        return "ok";
     },
 ];
 

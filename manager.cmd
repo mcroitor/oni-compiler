@@ -16,10 +16,14 @@ rem used php version
 set PHP_VERSION=8.1.27
 rem used gcc version
 set GCC_VERSION=13.2.0
+rem project directory
+set PROJECT_DIR=%cd%
 rem use __tmp__ as temporary directory
-set TMP_DIR=__tmp__
+set TMP_DIR=%PROJECT_DIR%\__tmp__
+rem data directory
+set DATA_DIR=%PROJECT_DIR%\data
 rem tools directory
-set TOOLS_DIR=tools
+set TOOLS_DIR=%PROJECT_DIR%\tools
 
 rem dependencies: 7z, wget
 set WGET=wget.exe
@@ -28,6 +32,34 @@ set SEVEN_ZIP=7z.exe
 rem set PHP and GCC environment variables
 set PATH=%PATH%;%TOOLS_DIR%\php
 set PATH=%PATH%;%TOOLS_DIR%\gcc\bin
+
+rem check if wget --version can be executed
+%WGET% --version 2>&1 >nul && (
+    echo %WGET% found
+) || (
+    echo %WGET% not found
+    goto :end
+)
+rem check if 7z --help can be executed
+(%SEVEN_ZIP% --help 2>&1 >nul || (
+    rem check path c:\Program Files\7-Zip
+    if exist "c:\Program Files\7-Zip\7z.exe" (
+        set SEVEN_ZIP="c:\Program Files\7-Zip\7z.exe"
+    ) else (
+        rem check path c:\Program Files (x86)\7-Zip
+        if exist "c:\Program Files (x86)\7-Zip\7z.exe" (
+            set SEVEN_ZIP="c:\Program Files (x86)\7-Zip\7z.exe"
+        ) else (
+            echo 7z not found
+            goto :end
+        )
+    )
+)) && (
+    echo %SEVEN_ZIP% found
+) || (
+    echo %SEVEN_ZIP% not found
+    goto :end
+)
 
 rem if no parameters are given or parameter is `help`, display help
 if "%1" == "" goto :help
@@ -76,34 +108,6 @@ goto :end
     if not exist %TMP_DIR% mkdir %TMP_DIR%
 
     echo check dependencies
-    rem check if wget --version can be executed
-    %WGET% --version 2>&1 >nul && (
-        echo %WGET% found
-    ) || (
-        echo %WGET% not found
-        goto :end
-    )
-
-    rem check if 7z --help can be executed
-    (%SEVEN_ZIP% --help 2>&1 >nul || (
-        rem check path c:\Program Files\7-Zip
-        if exist "c:\Program Files\7-Zip\7z.exe" (
-            set SEVEN_ZIP="c:\Program Files\7-Zip\7z.exe"
-        ) else (
-            rem check path c:\Program Files (x86)\7-Zip
-            if exist "c:\Program Files (x86)\7-Zip\7z.exe" (
-                set SEVEN_ZIP="c:\Program Files (x86)\7-Zip\7z.exe"
-            ) else (
-                echo 7z not found
-                goto :end
-            )
-        )
-    )) && (
-        echo %SEVEN_ZIP% found
-    ) || (
-        echo %SEVEN_ZIP% not found
-        goto :end
-    )
 
     rem check if php exists in system
     php.exe --version 2>&1 >nul && (
@@ -139,9 +143,9 @@ goto :end
 
     rem create data\contests\ data\tasks data\tmp\ directories
     echo create data directories
-    if not exist data\contests\ mkdir data\contests\
-    if not exist data\tasks\ mkdir data\tasks\
-    if not exist data\tmp\ mkdir data\tmp\
+    if not exist %DATA_DIR%\contests\ mkdir %DATA_DIR%\contests\
+    if not exist %DATA_DIR%\tasks\ mkdir %DATA_DIR%\tasks\
+    if not exist %DATA_DIR%\tmp\ mkdir %DATA_DIR%\tmp\
     echo done
 
     EXIT /B 0
@@ -177,7 +181,7 @@ goto :end
 
     rem create database
     echo create database
-    php site\cli\install.php
+    php %PROJECT_DIR%\site\cli\install.php
     echo done
 
     EXIT /B 0
@@ -209,9 +213,9 @@ goto :end
     echo clean
     rem remove all from tmp directory
     echo remove tmp directory
-    if exist %TMP_DIR% rmdir /s /q %TMP_DIR%/*
+    if exist %TMP_DIR% (rmdir /s /q %TMP_DIR% && mkdir %TMP_DIR%)
     rem remove all from data directory
-    if exist data rmdir /s /q data/*
+    if exist %DATA_DIR% (rmdir /s /q %DATA_DIR% && mkdir %DATA_DIR%)
     EXIT /B 0
 goto :end
 

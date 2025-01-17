@@ -1,16 +1,183 @@
-.menu {
-    margin: 13px 0 0 0;
+/* For devices larger than 1200px */
+@media (min-width: 1200px) {
+    .container {
+        width: 90%;
+    }
+
+    .column,
+    .columns {
+        margin-left: 2%;
+    }
+
+    .column:first-child,
+    .columns:first-child {
+        margin-left: 0;
+    }
+
+    .one.column,
+    .one.columns {
+        width: 6.5%;
+    }
+
+    .two.columns {
+        width: 15%;
+    }
+
+    .three.columns {
+        width: 23.5%;
+    }
+
+    .four.columns {
+        width: 32%;
+    }
+
+    .five.columns {
+        width: 40.5%;
+    }
+
+    .six.columns {
+        width: 49%;
+    }
+
+    .seven.columns {
+        width: 57.5%;
+    }
+
+    .eight.columns {
+        width: 66%;
+    }
+
+    .nine.columns {
+        width: 74.5%;
+    }
+
+    .ten.columns {
+        width: 83%;
+    }
+
+    .eleven.columns {
+        width: 91.5%;
+    }
+
+    .twelve.columns {
+        width: 100%;
+        margin-left: 0;
+    }
+
+    .one-third.column {
+        width: 32%;
+    }
+
+    .two-thirds.column {
+        width: 66%;
+    }
+
+    .one-half.column {
+        width: 49%;
+    }
+
+    /* Offsets */
+    .offset-by-one.column,
+    .offset-by-one.columns {
+        margin-left: 8.5%;
+    }
+
+    .offset-by-two.column,
+    .offset-by-two.columns {
+        margin-left: 17%;
+    }
+
+    .offset-by-three.column,
+    .offset-by-three.columns {
+        margin-left: 25.5%;
+    }
+
+    .offset-by-four.column,
+    .offset-by-four.columns {
+        margin-left: 34%;
+    }
+
+    .offset-by-five.column,
+    .offset-by-five.columns {
+        margin-left: 42.5%;
+    }
+
+    .offset-by-six.column,
+    .offset-by-six.columns {
+        margin-left: 51%;
+    }
+
+    .offset-by-seven.column,
+    .offset-by-seven.columns {
+        margin-left: 59.5%;
+    }
+
+    .offset-by-eight.column,
+    .offset-by-eight.columns {
+        margin-left: 68%;
+    }
+
+    .offset-by-nine.column,
+    .offset-by-nine.columns {
+        margin-left: 76.5%;
+    }
+
+    .offset-by-ten.column,
+    .offset-by-ten.columns {
+        margin-left: 85%;
+    }
+
+    .offset-by-eleven.column,
+    .offset-by-eleven.columns {
+        margin-left: 93.5%;
+    }
+
+    .offset-by-one-third.column,
+    .offset-by-one-third.columns {
+        margin-left: 34%;
+    }
+
+    .offset-by-two-thirds.column,
+    .offset-by-two-thirds.columns {
+        margin-left: 68%;
+    }
+
+    .offset-by-one-half.column,
+    .offset-by-one-half.columns {
+        margin-left: 51%;
+    }
 }
 
-.menu ul li {
+#page-primary-menu {
+    margin-left: 0px;
+    padding-left: 0px;
+}
+
+#page-primary-menu .menu {
+    margin: 13px 0 0 0;
+    border-bottom: 1px solid #ccc;
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.menu ul {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+}
+
+#page-primary-menu .menu ul li {
     display: inline;
     margin: 0 20px 0 0;
-    margin-bottom: 130px;
 }
 
-.menu a {
+#page-primary-menu .menu a.button {
     text-decoration: none;
     text-transform: uppercase;
+    border: 1px solid #ccc;
+    border-bottom-width: 0px;
+    border-radius: 5px 5px 0 0;
+    margin-bottom: 0px;
 }
 
 .menu a:hover {
@@ -18,18 +185,17 @@
 }
 
 .menu .active {
-    border-bottom-width: 0px!important;
-    border-bottom-left-radius: 0px;
-    border-bottom-right-radius: 0px;
+    background-color: antiquewhite;
 }
 
 .menu .inactive {
-    border-width: 0px!important;
+    background-color: aliceblue;
 }
 
 h3.header {
     border-bottom: 1px solid #ccc;
 }
+
 h4.subtitle {
     padding-top: 2rem;
 }
@@ -37,4 +203,19 @@ h4.subtitle {
 .icon {
     width: 24px;
     height: 24px;
+}
+
+#page-content {
+    background-color: aliceblue;
+    border: 1px outset #ccc;
+    min-height: 20rem;
+    padding: 1rem;
+}
+
+#page-aside-content {
+    padding-top: 1rem;
+    background-color: aliceblue;
+    border: 1px outset #ccc;
+    text-align: center;
+    min-height: 20rem;
 }
