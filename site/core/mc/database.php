@@ -155,7 +155,7 @@ class database
      * @param string $table
      * @param string $column_name column name for selection.
      * @param array $where associative conditions.
-     * @param string $limit definition sample: ['offset' => '1', 'limit' => '100'].
+     * @param array $limit definition sample: ['offset' => '1', 'limit' => '100'].
      */
     public function select_column(string $table, string $column_name, array $where = [], array $limit = []): array
     {

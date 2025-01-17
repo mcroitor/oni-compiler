@@ -9,6 +9,17 @@ namespace mc;
  */
 class template
 {
+    public const prefix = "prefix";
+    public const suffix = "suffix";
+
+    public const comment_modifiers = [
+        self::prefix => "<!-- ",
+        self::suffix => " -->",
+    ];
+    public const bracket_modifiers = [
+        self::prefix => "{{",
+        self::suffix => "}}",
+    ];
 
     /**
      * template
@@ -16,8 +27,8 @@ class template
      */
     protected string $template;
     protected array $modifiers = [
-        "prefix" => "",
-        "suffix" => ""
+        self::prefix => "",
+        self::suffix => ""
     ];
 
     /**
@@ -34,6 +45,17 @@ class template
         if(isset($modifiers["suffix"])){
             $this->modifiers["suffix"] = $modifiers["suffix"];
         }
+    }
+
+    /**
+     * Create new template object from file
+     * @param string $file
+     * @param array $modifiers
+     * @return \mc\template
+     */
+    public static function load(string $file, array $modifiers = []): template
+    {
+        return new template(file_get_contents($file), $modifiers);
     }
 
     /**
@@ -61,7 +83,7 @@ class template
      * Example:
      * <pre>$template->fill($data1)->fill(data2)->value();</pre>
      * @param array $data
-     * @return \template
+     * @return \mc\template
      */
     public function fill(array $data): template
     {
@@ -77,7 +99,7 @@ class template
      * Replace single $pattern with $value
      * @param string $pattern
      * @param string $value
-     * @return \template
+     * @return \mc\template
      */
     public function fill_value(string $pattern, string $value): template
     {

@@ -55,19 +55,19 @@ class config
         "html/label",
         "html/option",
         "html/widget/nav",
-        // other
-        "Contest",
-        "ContestTable",
-        "Participant",
-        "ParticipantResult",
-        "Profile",
-        "Task",
-        "TaskResult",
-        "Test",
-        // renders
-        "/../renders/Common",
-        "/../renders/admin/Contest",
-        "/../renders/admin/Task",
+        // // other
+        // "Contest",
+        // "ContestTable",
+        // "Participant",
+        // "ParticipantResult",
+        // "Profile",
+        // "Task",
+        // "TaskResult",
+        // "Test",
+        // // renders
+        // "/../renders/Common",
+        // "/../renders/admin/Contest",
+        // "/../renders/admin/Task",
     ];
 
     public static function core()
@@ -92,9 +92,9 @@ class config
     // main menu
 
     private static $mainMenu = [
-        "Contests" => "/?q=contest/list",
-        "Tasks" => "/?q=task/list",
         "Users" => "/?q=user/list",
+        "Tasks" => "/?q=task/list",
+        "Contests" => "/?q=contest/list",
     ];
 
     public static function addMainMenu(array $links)

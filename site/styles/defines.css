@@ -203,6 +203,7 @@ h4.subtitle {
 .icon {
     width: 24px;
     height: 24px;
+    margin-top: 7px;
 }
 
 #page-content {
@@ -218,4 +219,16 @@ h4.subtitle {
     border: 1px outset #ccc;
     text-align: center;
     min-height: 20rem;
+}
+
+.align-center {
+    text-align: center;
+}
+
+.align-right {
+    text-align: right;
+}
+
+.align-left {
+    text-align: left;
 }

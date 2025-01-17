@@ -94,4 +94,16 @@ class filesystem
             \unlink($path);
         }
     }
+
+    public static function upload(string $name, string $to, string $separator = self::US)
+    {
+        $to = self::normalize($to, $separator);
+        if (!file_exists($to)) {
+            mkdir($to, 0777, true);
+        }
+        $file = $_FILES[$name];
+        $path = $to . $separator . $file["name"];
+        move_uploaded_file($file["tmp_name"], $path);
+        return $path;
+    }
 }

@@ -8,6 +8,7 @@ use mc\sql\database;
 
 class TestUploader
 {
+    #[\mc\route("tests/upload")]
     public static function upload(array $params)
     {
         $taskId = (int)filter_input(INPUT_POST, "task-id");

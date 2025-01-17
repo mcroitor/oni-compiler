@@ -14,8 +14,7 @@
             <header id="page-header" class="row"><!-- page_header --></header>
             <menu id="page-primary-menu" class="row"><!-- page_primary_menu --></menu>
             <div class="row">
-                <section id="page-content" class="color-1 ten columns"><!-- page_content --></section>
-                <aside id="page-aside-content" class="color-1 two columns"><!-- page_aside_content --></aside>
+                <section id="page-content" class="color-1 twelve columns"><!-- page_content --></section>
             </div>
             <footer id="page-footer" class="row"><!-- page_footer --></footer>
         </div>

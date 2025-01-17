@@ -8,12 +8,12 @@ use ZipArchive;
 
 class Manager
 {
-    public const dir = \config::module_dir . "/task/";
+    public const dir = config::module_dir . "/task/";
     public const templates_dir = self::dir . "/templates/";
 
     private static function getTaskPath(string $taskId)
     {
-        return \config::tasks_dir . "{$taskId}/";
+        return config::tasks_dir . "{$taskId}/";
     }
 
     private static function getTestTaskPath(string $taskId)
@@ -26,6 +26,7 @@ class Manager
      * create new task.
      * @param array $params not used
      */
+    #[\mc\route("task/create")]
     public static function create(array $params)
     {
         if (isset($_POST["create-task"])) {
@@ -38,6 +39,7 @@ class Manager
         return file_get_contents(self::templates_dir . "task.create.tpl.php");
     }
 
+    #[\mc\route("task/update")]
     public static function update(array $params)
     {
         if (isset($_POST["update-task"])) {
@@ -48,17 +50,18 @@ class Manager
         }
         $taskId = empty($params[0]) ? 0 : (int)$params[0];
         $task = self::get($taskId);
-        $tpl = new template(
-            file_get_contents(self::templates_dir . "task.update.tpl.php")
+        $tpl = template::load(
+            self::templates_dir . "task.update.tpl.php",
+            template::comment_modifiers
         );
 
         return $tpl->fill([
-            "<!-- task-id -->" => $task[\meta\tasks::ID],
-            "<!-- task-name -->" => $task[\meta\tasks::NAME],
-            "<!-- task-description -->" => $task[\meta\tasks::DESCRIPTION],
-            "<!-- task-memory -->" => $task[\meta\tasks::MEMORY],
-            "<!-- task-time -->" => $task[\meta\tasks::TIME],
-            "<!-- task-tests -->" => self::getTaskTests($taskId),
+            "task-id" => $task[\meta\tasks::ID],
+            "task-name" => $task[\meta\tasks::NAME],
+            "task-description" => $task[\meta\tasks::DESCRIPTION],
+            "task-memory" => $task[\meta\tasks::MEMORY],
+            "task-time" => $task[\meta\tasks::TIME],
+            "task-tests" => self::getTaskTests($taskId),
         ])->value();
     }
 
@@ -77,7 +80,7 @@ class Manager
             \meta\tasks::MEMORY => filter_input(INPUT_POST, "task-memory"),
             \meta\tasks::TIME => filter_input(INPUT_POST, "task-time"),
         ];
-        \mc\logger::stdout()->info("data prepared: " . json_encode($data));
+        \mc\logger::stderr()->info("data prepared: " . json_encode($data));
         $crud->update($data);
         return $data[\meta\tasks::ID];
     }
@@ -95,7 +98,7 @@ class Manager
             \meta\tasks::MEMORY => filter_input(INPUT_POST, "task-memory"),
             \meta\tasks::TIME => filter_input(INPUT_POST, "task-time"),
         ];
-        \mc\logger::stdout()->info("data prepared: " . json_encode($data));
+        \mc\logger::stderr()->info("data prepared: " . json_encode($data));
         return $crud->insert($data);
     }
 
@@ -116,31 +119,34 @@ class Manager
      * @param array $params
      * @return string
      */
+    #[\mc\route("task/list")]
     public static function list(array $params): string
     {
         $from = empty($params[0]) ? 0 : (int)$params[0];
         $offset = empty($params[1]) ? 20 : (int)$params[1];
 
-        $db = new \mc\sql\database(\config::dsn);
+        $db = new \mc\sql\database(config::dsn);
         $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
         $tasks = $crud->all($from, $offset);
 
         $list = "";
 
         foreach ($tasks as $task) {
-            $list .= (new \mc\template(
-                file_get_contents(self::templates_dir . "tasklist.element.tpl.php")
-            ))->fill([
-                "<!-- name -->" => $task[\meta\tasks::NAME],
-                "<!-- memory -->" => $task[\meta\tasks::MEMORY],
-                "<!-- time -->" => $task[\meta\tasks::TIME],
-                "<!-- id -->" => $task[\meta\tasks::ID],
+            $list .= template::load(
+                self::templates_dir . "tasklist.element.tpl.php",
+                template::comment_modifiers
+            )->fill([
+                "name" => $task[\meta\tasks::NAME],
+                "memory" => $task[\meta\tasks::MEMORY],
+                "time" => $task[\meta\tasks::TIME],
+                "id" => $task[\meta\tasks::ID],
             ])->value();
         }
-        return (new \mc\template(
-            file_get_contents(self::templates_dir . "tasklist.tpl.php")
-        ))->fill([
-            "<!-- tasklist element -->" => $list
+        return template::load(
+            self::templates_dir . "tasklist.tpl.php",
+            template::comment_modifiers
+        )->fill([
+            "tasklist element" => $list
         ])->value();
     }
 
@@ -148,11 +154,12 @@ class Manager
      * remove task by ID then redirects to tasks list.
      * @param array $params - first element contains task ID
      */
+    #[\mc\route("task/remove")]
     public static function remove(array $params)
     {
         $id = empty($params[0]) ? -1 : (int)$params[0];
         $db = new \mc\sql\database(config::dsn);
-        
+
         $db->delete(\meta\tasks::__name__, [\meta\tasks::ID => $id]);
         // delete tests
         $db->delete(\meta\task_tests::__name__, [\meta\task_tests::TASK_ID => $id]);
@@ -166,6 +173,7 @@ class Manager
      * view a task by ID.
      * @param array $params - first element contains task ID
      */
+    #[\mc\route("task/view")]
     public static function view(array $params)
     {
         $taskId = empty($params[0]) ? -1 : (int)$params[0];
@@ -175,14 +183,15 @@ class Manager
             return "";
         }
 
-        $tpl = new \mc\template(
-            file_get_contents(self::templates_dir . "task.view.tpl.php")
+        $tpl = template::load(
+            self::templates_dir . "task.view.tpl.php",
+            template::comment_modifiers
         );
         return $tpl->fill([
-            "<!-- task-name -->" => $task[\meta\tasks::NAME],
-            "<!-- task-description -->" => $task[\meta\tasks::DESCRIPTION],
-            "<!-- task-time -->" => $task[\meta\tasks::TIME],
-            "<!-- task-memory -->" => $task[\meta\tasks::MEMORY],
+            "task-name" => $task[\meta\tasks::NAME],
+            "task-description" => $task[\meta\tasks::DESCRIPTION],
+            "task-time" => $task[\meta\tasks::TIME],
+            "task-memory" => $task[\meta\tasks::MEMORY],
         ])->value();
     }
 
@@ -194,14 +203,16 @@ class Manager
     {
         $taskId = empty($params[0]) ? -1 : (int)$params[0];
 
-        $tpl = new \mc\template(
-            file_get_contents(self::templates_dir . "task.tests.upload.tpl.php")
+        $tpl = template::load(
+            self::templates_dir . "task.tests.upload.tpl.php",
+            template::comment_modifiers
         );
         return $tpl->fill([
-            "<!-- task-id -->" => $taskId,
+            "task-id" => $taskId,
         ])->value();
     }
 
+    #[\mc\route("task/export")]
     public static function export(array $params)
     {
         $taskId = empty($params[0]) ? -1 : (int)$params[0];
@@ -210,7 +221,7 @@ class Manager
         $fileName = "task_{$taskId}.zip";
         $filePath = self::getTaskPath($taskId) . $fileName;
         $testsDir = \mc\filesystem::implode(self::getTaskPath($taskId), "tests");
-        
+
         // prepare task definition
         $task = $db->select(\meta\tasks::__name__, ['*'],  [\meta\tasks::ID => $taskId])[0];
         // prepare tests definition
@@ -239,6 +250,7 @@ class Manager
         exit();
     }
 
+    #[\mc\route("task/import")]
     public static function import(array $params)
     {
         if (isset($_POST["task-import"])) {
@@ -247,30 +259,30 @@ class Manager
             exit();
         }
 
-        $tpl = new \mc\template(
-            file_get_contents(self::templates_dir . "task.import.tpl.php")
-        );
-        return $tpl->value();
+        return template::load(
+            self::templates_dir . "task.import.tpl.php",
+            template::comment_modifiers
+        )->value();
     }
 
     public static function importTask($zip)
     {
-        if(file_exists($zip) === false) {
-            \mc\logger::stdout()->error("cant import task: file `{$zip}` does not exists");
+        if (file_exists($zip) === false) {
+            \mc\logger::stderr()->error("cant import task: file `{$zip}` does not exists");
             return -1;
         }
         $db = new \mc\sql\database(config::dsn);
         $za = new ZipArchive;
-        
+
         $za->open($zip, ZipArchive::RDONLY);
         // task definition
         $taskDefinition = $za->getFromName("task.json");
         $task = (array)json_decode($taskDefinition);
         unset($task[\meta\tasks::ID]);
-        
-        \mc\logger::stdout()->info("data prepared: " . json_encode($task));
+
+        \mc\logger::stderr()->info("data prepared: " . json_encode($task));
         $taskId = $db->insert(\meta\tasks::__name__, $task);
-        
+
         // tests definition
         self::createStructure($taskId);
         $outDir = self::getTestTaskPath($taskId);
@@ -293,12 +305,14 @@ class Manager
         return $taskId;
     }
 
-    protected static function getTaskTests($taskId) {
+    protected static function getTaskTests($taskId)
+    {
         $db = new \mc\sql\database(config::dsn);
         $tests = $db->select(
             \meta\task_tests::__name__,
             ["*"],
-            [\meta\task_tests::TASK_ID => $taskId]);
+            [\meta\task_tests::TASK_ID => $taskId]
+        );
 
         $result = "";
         foreach ($tests as $test) {
@@ -311,7 +325,8 @@ class Manager
         return $result;
     }
 
-    public static function get($taskId) {
+    public static function get($taskId)
+    {
         $db = new \mc\sql\database(config::dsn);
         $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
         return $crud->select($taskId);
