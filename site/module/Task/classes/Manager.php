@@ -13,7 +13,7 @@ class Manager
 
     private static function getTaskPath(string $taskId)
     {
-        return config::tasks_dir . "{$taskId}/";
+        return config::tasks_dir . "/{$taskId}/";
     }
 
     private static function getTestTaskPath(string $taskId)
@@ -53,9 +53,10 @@ class Manager
      * show form for task creation or, if POST data is present,
      * create new task.
      * @param array $params not used
+     * @return string
      */
     #[\mc\route("task/create")]
-    public static function create(array $params)
+    public static function create(array $params): string
     {
         if (isset($_POST["create-task"])) {
             $taskId = self::insertData();
@@ -68,7 +69,7 @@ class Manager
     }
 
     #[\mc\route("task/update")]
-    public static function update(array $params)
+    public static function update(array $params): string
     {
         if (isset($_POST["update-task"])) {
             $taskId = filter_input(INPUT_POST, "task-id");
@@ -97,7 +98,7 @@ class Manager
      * update task, return ID of updated task
      * @return string ID of updated task
      */
-    private static function updateData()
+    private static function updateData(): string
     {
         $db = new \mc\sql\database(config::dsn);
         $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
@@ -333,7 +334,7 @@ class Manager
         return $taskId;
     }
 
-    protected static function getTaskTests($taskId)
+    protected static function getTaskTests($taskId): string
     {
         $db = new \mc\sql\database(config::dsn);
         $tests = $db->select(
@@ -358,5 +359,26 @@ class Manager
         $db = new \mc\sql\database(config::dsn);
         $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
         return $crud->select($taskId);
+    }
+
+    #[\mc\route("task/tests")]
+    public static function testsUpload(array $params)
+    {
+        if(empty($params)) {
+            return "task not found";
+        }
+        $taskId = (int)$params[0];
+
+        $db = new \mc\sql\database(config::dsn);
+        $crud = new \mc\sql\crud($db, \meta\task_tests::__name__);
+
+        if(empty($_FILES)) {
+            return template::load(
+                self::templates_dir . "task.tests.upload.tpl.php",
+                template::comment_modifiers)->fill([
+                "task-id" => $taskId,
+            ])->value();
+        }
+        return "";
     }
 }

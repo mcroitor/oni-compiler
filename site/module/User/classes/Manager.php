@@ -14,8 +14,6 @@ class Manager
 
     public static function init()
     {
-        // session_start();
-        \mc\logger::stderr()->info("session: " . json_encode($_SESSION));
         if (empty($_SESSION["user"])) {
             $_SESSION["user"] = [
                 \meta\users::ID => 0,

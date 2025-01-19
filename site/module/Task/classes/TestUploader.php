@@ -19,7 +19,7 @@ class TestUploader
         $outDir = config::tasks_dir . "/{$taskId}/tests/";
 
         if (!file_exists($outDir)) {
-            mkdir($outDir);
+            mkdir($outDir, 0777, true);
         }
 
         $db = new database(config::dsn);
