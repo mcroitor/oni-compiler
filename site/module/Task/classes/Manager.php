@@ -21,6 +21,34 @@ class Manager
         return self::getTaskPath($taskId) . "tests/";
     }
 
+    public static function init()
+    {
+        // main menu
+        if (\User\Manager::isLogged()) {
+            config::addMainMenu([
+                "Tasks" => "/?q=task",
+            ]);
+        }
+    }
+
+    #[\mc\route("task")]
+    public static function actions(array $params)
+    {
+        $html = "<ul>";
+        $links = [
+            "list tasks" => "/?q=task/list",
+            "add a task" => "/?q=task/create",
+            "import task" => "/?q=task/import",
+        ];
+
+        foreach ($links as $name => $link) {
+            $html .= "<li><a href='{$link}' class='button w-200px'>{$name}</a></li>";
+        }
+        $html .= "</ul>";
+
+        return $html;
+    }
+
     /**
      * show form for task creation or, if POST data is present,
      * create new task.

@@ -3,10 +3,10 @@
 namespace mc;
 
 class TaskResult {
-    public $compilationStatus;
-    public $evaluationStatus;
-    public $score;
-    public $taskName;
+    public string $compilationStatus;
+    public string $evaluationStatus;
+    public int $score;
+    public string $taskName;
 
     public function __construct(string $taskName)
     {

@@ -1,12 +1,14 @@
 <?php
 
-namespace mc;
+namespace Task;
+
+use \Task\Test;
 
 class Task
 {
-    private $name;
-    private $memoryLimit;
-    private $timeLimit;
+    private string $name;
+    private int $memoryLimit;
+    private int $timeLimit;
     private $tests = [];
 
     public function __construct($task)
@@ -19,22 +21,22 @@ class Task
         }
     }
 
-    public function name()
+    public function name(): string
     {
         return $this->name;
     }
 
-    public function tests()
+    public function tests(): array
     {
         return $this->tests;
     }
 
-    public function memoryLimit()
+    public function memoryLimit(): int
     {
         return $this->memoryLimit;
     }
 
-    public function timeLimit()
+    public function timeLimit(): int
     {
         return $this->timeLimit;
     }

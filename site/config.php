@@ -87,14 +87,19 @@ class config
             include_once config::module_dir . self::DS . "{$module_name}"
                 . self::DS . "index.php";
         }
+
+        foreach($modules as $module) {
+            $module_name = $module["name"];
+            $module_init = "\\$module_name\\init";
+            if(function_exists($module_init)) {
+                $module_init();
+            }
+        }
     }
 
     // main menu
 
     private static $mainMenu = [
-        "Users" => "/?q=user/list",
-        "Tasks" => "/?q=task/list",
-        "Contests" => "/?q=contest/list",
     ];
 
     public static function addMainMenu(array $links)

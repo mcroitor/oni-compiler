@@ -7,7 +7,7 @@ class nav implements \core\html\buildable
 
     private $links;
     private $class = [];
-    private $active;
+    private $active = "";
 
     /**
      * create a navigation panel
@@ -18,7 +18,9 @@ class nav implements \core\html\buildable
     {
         $this->links = $links;
         $this->class = \array_unique(\array_merge(["menu"], explode(" ", $class)));
-        $this->active = \array_keys($this->links)[0];
+        if(!empty($this->links)){
+            $this->active = \array_keys($this->links)[0];
+        }
     }
 
     /**
@@ -39,9 +41,6 @@ class nav implements \core\html\buildable
      */
     public function build(): string
     {
-        if (empty($this->active)) {
-            $this->active = \array_keys($this->links)[0];
-        }
         $class = implode(" ", $this->class);
         $result = "<nav class='{$class}'>";
         $links = [];

@@ -1,17 +1,17 @@
 <?php
 
-namespace mc;
+namespace Task;
 
 class Profile
 {
-    public $name;
-    public $compiler;
-    public $extension;
-    public $compile;
-    public $interpreter;
-    public $execute;
-    public $source;
-    public $app;
+    public string $name;
+    public string $compiler;
+    public string $extension;
+    public string $compile;
+    public string $interpreter;
+    public string $execute;
+    public string $source;
+    public string $app;
 
     public function __construct($profile)
     {
@@ -21,7 +21,7 @@ class Profile
         $this->compile = $profile->compile ?? "";
         $this->interpreter = $profile->interpreter ?? "";
         $this->execute = $profile->execute;
-        $this->source = $profile->source ?? "default." . $this->extension;
+        $this->source = $profile->source ?? "default.{$this->extension}";
         $this->app = $profile->app ?? "";
     }
 }

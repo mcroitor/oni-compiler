@@ -1,12 +1,12 @@
 <?php
 
-namespace mc;
+namespace Task;
 
 class Test
 {
-    private $input;
-    private $output;
-    private $score;
+    private string $input;
+    private string $output;
+    private int $score;
 
     public function __construct($test)
     {
@@ -15,17 +15,17 @@ class Test
         $this->score = $test->score ?? 10;
     }
 
-    public function input()
+    public function input(): string
     {
         return $this->input;
     }
 
-    public function output()
+    public function output(): string
     {
         return $this->output;
     }
 
-    public function score()
+    public function score(): int
     {
         return $this->score;
     }

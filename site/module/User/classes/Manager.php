@@ -14,7 +14,7 @@ class Manager
 
     public static function init()
     {
-        session_start();
+        // session_start();
         \mc\logger::stderr()->info("session: " . json_encode($_SESSION));
         if (empty($_SESSION["user"])) {
             $_SESSION["user"] = [
@@ -28,7 +28,13 @@ class Manager
                 \meta\users::ROLE_ID => 1
             ];
         }
-        // $user = new \meta\users($_SESSION["user"]);
+
+        // main menu
+        if (Manager::isLogged()) {
+            config::addMainMenu([
+                "Users" => "/?q=user",
+            ]);
+        }
     }
 
     public static function get($userId)
@@ -39,6 +45,22 @@ class Manager
     }
 
     #[route('user')]
+    public static function actions(array $params) {
+        $html = "<ul>";
+        $links = [
+            "list users" => "/?q=user/list",
+            "add a user" => "/?q=user/add",
+            "import users" => "/?q=user/import",
+        ];
+
+        foreach ($links as $name => $link) {
+            $html .= "<li><a href='{$link}' class='button w-200px'>{$name}</a></li>";
+        }
+        $html .= "</ul>";
+
+        return $html;
+    }
+
     #[route('user/list')]
     public static function list()
     {
@@ -160,7 +182,8 @@ class Manager
             return "login failed";
         }
         $_SESSION["user"] = $user[0];
-        return "login successful";
+        header("location:/");
+        exit();
     }
 
     #[route('user/logout')]

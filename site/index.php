@@ -1,7 +1,5 @@
 <?php
 
-// use meta\modules;
-
 include_once __DIR__ . DIRECTORY_SEPARATOR . "config.php";
 config::load_modules();
 
@@ -21,13 +19,15 @@ $primary_menu = (new \core\html\widget\nav(config::getMainMenu()))
     ->build();
 
 // ugly hack for adding logout button
-$primary_menu = str_replace(
-    "</ul>",
-    "<li><a href='/?q=user/logout' class='u-pull-right inactive button'>" .
-        "<img src='images/logout.png' alt='Logout' title='Logout' class='icon' />" .
-    "</a></li></ul>",
-    $primary_menu
-);
+if (\User\Manager::isLogged()) {
+    $primary_menu = str_replace(
+        "</ul>",
+        "<li><a href='/?q=user/logout' class='u-pull-right inactive button'>" .
+            "<img src='images/logout.png' alt='Logout' title='Logout' class='icon' />" .
+            "</a></li></ul>",
+        $primary_menu
+    );
+}
 
 $page_data = [
     "page_header" => "<h2>Contest Manager</h2>",

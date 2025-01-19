@@ -17,6 +17,31 @@ class Manager
      */
     public const templates_dir = self::dir . "/templates/";
 
+    public static function init()
+    {
+        // main menu
+        
+        if (\User\Manager::isLogged()) {
+            \config::addMainMenu([
+                "Contests" => "/?q=contest",
+            ]);
+        }
+    }
+
+    #[route('contest')]
+    public static function actions(array $params) {
+        $html = "<ul>";
+        $links = [
+            "list contests" => "contest/list",
+            "create contest" => "contest/create",
+        ];
+        foreach ($links as $name => $link) {
+            $html .= "<li><a href='/?q={$link}' class='button w-200px'>{$name}</a></li>";
+        }
+        $html .= "</ul>";
+        return $html;
+    }
+
     /**
      * show list of contests
      * @param array $params
@@ -34,6 +59,8 @@ class Manager
 
         $list = "";
 
+        \mc\logger::stderr()->info("contests: " . json_encode($contests));
+
         foreach ($contests as $contest) {
             $list .= \mc\template::load(
                 self::templates_dir . "contestlist.element.tpl.php",
@@ -49,7 +76,7 @@ class Manager
             self::templates_dir . "contestlist.tpl.php",
             \mc\template::comment_modifiers
         )->fill([
-            "<!-- contestlist element -->" => $list
+            "contestlist element" => $list
         ])->value();
     }
 
