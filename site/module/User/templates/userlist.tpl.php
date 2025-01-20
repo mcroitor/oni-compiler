@@ -20,6 +20,7 @@
             <th>firstname</th>
             <th>institution</th>
             <th>email</th>
+            <th>role</th>
         </tr>
     </thead>
     <tbody>

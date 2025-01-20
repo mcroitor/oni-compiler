@@ -3,8 +3,9 @@
 namespace User;
 
 use config;
-use mc\template;
+use \mc\template;
 use \mc\route;
+use \User\Role;
 
 class Manager
 {
@@ -23,7 +24,7 @@ class Manager
                 \meta\users::INSTITUTION => "Unknown",
                 \meta\users::NAME => "guest",
                 \meta\users::PASSWORD => "",
-                \meta\users::ROLE_ID => 1
+                \meta\users::ROLE_ID => Role::GUEST
             ];
         }
 
@@ -60,7 +61,7 @@ class Manager
     }
 
     #[route('user/list')]
-    public static function list()
+    public static function list(): string
     {
         $db = new \mc\sql\database(config::dsn);
         $crud = new \mc\sql\crud($db, \meta\users::__name__);
@@ -77,6 +78,7 @@ class Manager
                 "firstname" => $user[\meta\users::FIRSTNAME],
                 "institution" => $user[\meta\users::INSTITUTION],
                 "email" => $user[\meta\users::EMAIL],
+                "role" => Role::getRoleName($user[\meta\users::ROLE_ID]),
             ])->value();
         }
         return template::load(
@@ -110,6 +112,7 @@ class Manager
                 \meta\users::INSTITUTION => filter_input(INPUT_POST, "institution"),
                 \meta\users::EMAIL => filter_input(INPUT_POST, "email"),
                 \meta\users::PASSWORD => '',
+                \meta\users::ROLE_ID => Role::CONTESTANT
             ];
             self::registerUser($userData);
             header("location:/?q=user/list");

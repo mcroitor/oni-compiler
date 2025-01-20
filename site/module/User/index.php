@@ -2,6 +2,8 @@
 
 namespace User;
 
+include_once __DIR__ . "/classes/Capability.php";
+include_once __DIR__ . "/classes/Role.php";
 include_once __DIR__ . "/classes/Manager.php";
 
 session_start();
