@@ -144,6 +144,7 @@ class Manager
         $contestId = empty($params[0]) ? -1 : (int) $params[0];
         config::addAsideMenu([
             "enrol users" => "/?q=contest/enrol/{$contestId}",
+            "contest board" => "/?q=contest/board/{$contestId}",
         ]);
         $crud = new \mc\sql\crud(config::$db, \meta\contests::__name__);
         $contest = $crud->select($contestId);
@@ -255,13 +256,17 @@ class Manager
         ])->value();
     }
 
-    private static function tasksInContest($contestId)
-    {
-        $taskIds = config::$db->select_column(
+    private static function tasks_in($contestId): array {
+        return config::$db->select_column(
             \meta\contest_tasks::__name__,
             \meta\contest_tasks::TASK_ID,
             [\meta\contest_tasks::CONTEST_ID => $contestId]
         );
+    }
+
+    private static function tasksInContest($contestId)
+    {
+        $taskIds = self::tasks_in($contestId);
 
         $result = "";
         $tpl = \mc\template::load(
@@ -364,13 +369,17 @@ class Manager
         ])->value();
     }
 
-    private static function usersInContest($contestId)
-    {
-        $userIds = config::$db->select_column(
+    private static function contestants($contestId): array {
+        return config::$db->select_column(
             \meta\contestants::__name__,
             \meta\contestants::USER_ID,
             [\meta\contestants::CONTEST_ID => $contestId]
         );
+    }
+
+    private static function usersInContest($contestId): string
+    {
+        $userIds = self::contestants($contestId);
 
         $result = "";
         $tpl = \mc\template::load(
@@ -446,17 +455,52 @@ class Manager
         return "";
     }
 
-    public static function getAsideMenu()
+    #[route('contest/board')]
+    public static function board(array $params)
     {
-        return (new \core\html\widget\nav([
-            "View Contests" => "contest/list",
-            "Create Contest" => "contest/create",
-            "Update Contest" => "contest/update",
-            "View Contest" => "contest/view",
-            "Contest Tasks" => "contest/tasks",
-            "Add tasks" => "contest/addtasks",
-            "Participants" => "contest/participants",
-            "Add Participants" => "contest/addparticipants",
-        ]))->active("");
+        self::actions();
+        $contestId = empty($params[0]) ? 0 : (int) $params[0];
+        if($contestId == 0) {
+            header("location:/?q=contest/list");
+            return "";
+        }
+
+        config::addAsideMenu([
+            "Contest description" => "/?q=contest/view/{$contestId}",
+        ]);
+
+        $task_names = [];
+        foreach(self::tasks_in($contestId) as $task_id) {
+            $task = \Task\Manager::get($task_id);
+            $task_names[$task_id] = $task[\meta\tasks::NAME];
+        }
+        $th_tasks = "";
+        foreach($task_names as $task_id => $task_name) {
+            $th_tasks .= "<th>{$task_name}</th>";
+        }
+
+        $contestants = self::contestants($contestId);
+        $rows = "";
+        foreach($contestants as $user_id) {
+            $contestant = \User\Manager::get($user_id);
+            $username = $contestant[\meta\users::FIRSTNAME] . " " . $contestant[\meta\users::LASTNAME];
+            $rows .= "<tr>";
+            $rows .= "<td> </td>";
+            $rows .= "<td>{$username}</td>";
+            foreach($task_names as $task_id => $task_name) {
+                $rows .= "<td>&nbsp;</td>";
+            }
+            $rows .= "<td>0</td>";
+            $rows .= "</tr>";
+        }
+
+        return \mc\template::load(
+            self::templates_dir . "contest.board.tpl.php",
+            \mc\template::comment_modifiers
+        )->fill([
+            "contest-id" => $contestId,
+            "contest-tasks" => $th_tasks,
+            "contestants" => $rows,
+        ])->value();
     }
 }
