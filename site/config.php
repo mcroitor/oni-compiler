@@ -55,32 +55,23 @@ class config
         "html/label",
         "html/option",
         "html/widget/nav",
-        // // other
-        // "Contest",
-        // "ContestTable",
-        // "Participant",
-        // "ParticipantResult",
-        // "Profile",
-        // "Task",
-        // "TaskResult",
-        // "Test",
-        // // renders
-        // "/../renders/Common",
-        // "/../renders/admin/Contest",
-        // "/../renders/admin/Task",
     ];
+
+    public static $db = null;
+    public static $logger = null;
 
     public static function core()
     {
         foreach (self::CORE as $module) {
             include_once self::core_dir . self::DS . "{$module}.php";
         }
+        self::$db = new mc\sql\database(self::dsn);
+        self::$logger = mc\logger::stderr();
     }
 
     public static function load_modules()
     {
-        $db = new mc\sql\database(config::dsn);
-        $crud = new \mc\sql\crud($db, "modules");
+        $crud = new \mc\sql\crud(self::$db, "modules");
         $modules = $crud->all();
         foreach ($modules as $module) {
             $module_name = $module["name"];

@@ -31,40 +31,31 @@ class Manager
         // main menu
         if (Manager::isLogged()) {
             config::addMainMenu([
-                "Users" => "/?q=user",
+                "Users" => "/?q=user/list",
             ]);
         }
     }
 
+
     public static function get($userId)
     {
-        $db = new \mc\sql\database(config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\users::__name__);
+        $crud = new \mc\sql\crud(config::$db, \meta\users::__name__);
         return $crud->select($userId);
     }
 
-    #[route('user')]
-    public static function actions(array $params) {
-        $html = "<ul class='vertical-menu'>";
-        $links = [
+    public static function actions(): void
+    {
+        config::addAsideMenu([
             "list users" => "/?q=user/list",
             "add a user" => "/?q=user/add",
-            "import users" => "/?q=user/import",
-        ];
-
-        foreach ($links as $name => $link) {
-            $html .= "<li><a href='{$link}' class='button w-200px'>{$name}</a></li>";
-        }
-        $html .= "</ul>";
-
-        return $html;
+        ]);
     }
 
     #[route('user/list')]
     public static function list(): string
     {
-        $db = new \mc\sql\database(config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\users::__name__);
+        self::actions();
+        $crud = new \mc\sql\crud(config::$db, \meta\users::__name__);
         $users = $crud->all();
 
         $list = "";
@@ -92,7 +83,7 @@ class Manager
     #[route('user/import')]
     public static function import()
     {
-        \mc\logger::stderr()->info("post data: " . json_encode($_POST));
+        \config::$logger->info("post data: " . json_encode($_POST));
         if (isset($_POST["MAX_FILE_SIZE"])) {
             self::registerUsers();
         }
@@ -118,6 +109,7 @@ class Manager
             header("location:/?q=user/list");
             return "";
         }
+        self::actions();
         return template::load(
             self::templates_dir . "useradd.tpl.php",
             template::comment_modifiers
@@ -127,7 +119,7 @@ class Manager
     private static function registerUser($userData)
     {
         $crud = new \mc\sql\crud(
-            new \mc\sql\database(\config::dsn),
+            config::$db,
             \meta\users::__name__
         );
         $crud->insert($userData);
@@ -168,7 +160,6 @@ class Manager
                 template::comment_modifiers
             )->value();
         }
-        $db = new \mc\sql\database(config::dsn);
 
         $login = filter_input(INPUT_POST, \meta\users::NAME);
         $password = filter_input(INPUT_POST, \meta\users::PASSWORD);
@@ -178,7 +169,7 @@ class Manager
             \meta\users::PASSWORD => self::cryptPassword($password)
         ];
 
-        $user = $db->select(\meta\users::__name__, ['*'], $condition);
+        $user = config::$db->select(\meta\users::__name__, ['*'], $condition);
         if (empty($user)) {
             return "login failed";
         }

@@ -32,27 +32,18 @@ class Manager
         // main menu
         if (\User\Manager::isLogged()) {
             config::addMainMenu([
-                "Tasks" => "/?q=task",
+                "Tasks" => "/?q=task/list",
             ]);
         }
     }
 
-    #[\mc\route("task")]
-    public static function actions(array $params)
+    public static function actions(): void
     {
-        $html = "<ul class='vertical-menu'>";
-        $links = [
+        config::addAsideMenu([
             "list tasks" => "/?q=task/list",
             "add a task" => "/?q=task/create",
             "import task" => "/?q=task/import",
-        ];
-
-        foreach ($links as $name => $link) {
-            $html .= "<li><a href='{$link}' class='button w-200px'>{$name}</a></li>";
-        }
-        $html .= "</ul>";
-
-        return $html;
+        ]);
     }
 
     /**
@@ -70,6 +61,7 @@ class Manager
             header("location:/?q=task/update/{$taskId}");
             return "";
         }
+        self::actions();
 
         return file_get_contents(self::templates_dir . "task.create.tpl.php");
     }
@@ -83,6 +75,7 @@ class Manager
             header("location:/?q=task/update/{$taskId}");
             return "";
         }
+        self::actions();
         $taskId = empty($params[0]) ? 0 : (int)$params[0];
         $task = self::get($taskId);
         $tpl = template::load(
@@ -106,8 +99,7 @@ class Manager
      */
     private static function updateData(): string
     {
-        $db = new \mc\sql\database(config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
+        $crud = new \mc\sql\crud(config::$db, \meta\tasks::__name__);
         $data = [
             \meta\tasks::ID => filter_input(INPUT_POST, "task-id"),
             \meta\tasks::NAME => filter_input(INPUT_POST, "task-name"),
@@ -125,8 +117,7 @@ class Manager
      */
     private static function insertData()
     {
-        $db = new \mc\sql\database(config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
+        $crud = new \mc\sql\crud(config::$db, \meta\tasks::__name__);
         $data = [
             \meta\tasks::NAME => filter_input(INPUT_POST, "task-name"),
             \meta\tasks::DESCRIPTION => filter_input(INPUT_POST, "task-description"),
@@ -157,11 +148,11 @@ class Manager
     #[\mc\route("task/list")]
     public static function list(array $params): string
     {
+        self::actions();
         $from = empty($params[0]) ? 0 : (int)$params[0];
         $offset = empty($params[1]) ? 20 : (int)$params[1];
 
-        $db = new \mc\sql\database(config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
+        $crud = new \mc\sql\crud(config::$db, \meta\tasks::__name__);
         $tasks = $crud->all($from, $offset);
 
         $list = "";
@@ -212,6 +203,7 @@ class Manager
     #[\mc\route("task/view")]
     public static function view(array $params)
     {
+        self::actions();
         $taskId = empty($params[0]) ? -1 : (int)$params[0];
         $task = self::get($taskId);
 
@@ -224,6 +216,7 @@ class Manager
             template::comment_modifiers
         );
         return $tpl->fill([
+            "task-id" => $task[\meta\tasks::ID],
             "task-name" => $task[\meta\tasks::NAME],
             "task-description" => $task[\meta\tasks::DESCRIPTION],
             "task-time" => $task[\meta\tasks::TIME],
@@ -252,16 +245,15 @@ class Manager
     public static function export(array $params)
     {
         $taskId = empty($params[0]) ? -1 : (int)$params[0];
-        $db = new \mc\sql\database(config::dsn);
 
         $fileName = "task_{$taskId}.zip";
         $filePath = self::getTaskPath($taskId) . $fileName;
         $testsDir = \mc\filesystem::implode(self::getTaskPath($taskId), "tests");
 
         // prepare task definition
-        $task = $db->select(\meta\tasks::__name__, ['*'],  [\meta\tasks::ID => $taskId])[0];
+        $task = config::$db->select(\meta\tasks::__name__, ['*'],  [\meta\tasks::ID => $taskId])[0];
         // prepare tests definition
-        $task_tests = $db->select(\meta\task_tests::__name__, ['*'],  [\meta\task_tests::TASK_ID => $taskId]);
+        $task_tests = config::$db->select(\meta\task_tests::__name__, ['*'],  [\meta\task_tests::TASK_ID => $taskId]);
 
         $za = new ZipArchive;
         $za->open($filePath, ZipArchive::CREATE);
@@ -294,6 +286,7 @@ class Manager
             header("location:/?q=task/list");
             exit();
         }
+        self::actions();
 
         return template::load(
             self::templates_dir . "task.import.tpl.php",
@@ -307,7 +300,6 @@ class Manager
             \mc\logger::stderr()->error("cant import task: file `{$zip}` does not exists");
             return -1;
         }
-        $db = new \mc\sql\database(config::dsn);
         $za = new ZipArchive;
 
         $za->open($zip, ZipArchive::RDONLY);
@@ -317,7 +309,7 @@ class Manager
         unset($task[\meta\tasks::ID]);
 
         \mc\logger::stderr()->info("data prepared: " . json_encode($task));
-        $taskId = $db->insert(\meta\tasks::__name__, $task);
+        $taskId = config::$db->insert(\meta\tasks::__name__, $task);
 
         // tests definition
         self::createStructure($taskId);
@@ -328,7 +320,7 @@ class Manager
             $test = (array)$test;
             unset($test[\meta\task_tests::ID]);
             $test[\meta\task_tests::TASK_ID] = $taskId;
-            $db->insert(\meta\task_tests::__name__, $test);
+            config::$db->insert(\meta\task_tests::__name__, $test);
             file_put_contents($outDir . $test["input"], $za->getFromName("tests/" . $test["input"]));
             file_put_contents($outDir . $test["output"], $za->getFromName("tests/" . $test["output"]));
         }
@@ -343,8 +335,7 @@ class Manager
 
     protected static function getTaskTests($taskId): string
     {
-        $db = new \mc\sql\database(config::dsn);
-        $tests = $db->select(
+        $tests = config::$db->select(
             \meta\task_tests::__name__,
             ["*"],
             [\meta\task_tests::TASK_ID => $taskId]
@@ -363,8 +354,7 @@ class Manager
 
     public static function get($taskId)
     {
-        $db = new \mc\sql\database(config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\tasks::__name__);
+        $crud = new \mc\sql\crud(config::$db, \meta\tasks::__name__);
         return $crud->select($taskId);
     }
 
@@ -375,9 +365,6 @@ class Manager
             return "task not found";
         }
         $taskId = (int)$params[0];
-
-        $db = new \mc\sql\database(config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\task_tests::__name__);
 
         if (empty($_FILES)) {
             return template::load(

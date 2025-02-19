@@ -22,8 +22,6 @@ class TestUploader
             mkdir($outDir, 0777, true);
         }
 
-        $db = new database(config::dsn);
-
         $tests = [];
         $zip = new ZipArchive;
         $zip->open($tmpFile, ZipArchive::RDONLY);
@@ -44,7 +42,7 @@ class TestUploader
 
         $points = round(100 / count($tests), 2);
 
-        $db->delete(\meta\task_tests::__name__, [\meta\task_tests::TASK_ID => $taskId]);
+        config::$db->delete(\meta\task_tests::__name__, [\meta\task_tests::TASK_ID => $taskId]);
 
         foreach ($tests as $test) {
             $testDescription = [
@@ -56,7 +54,7 @@ class TestUploader
             ];
             file_put_contents($outDir . $test["in"], $zip->getFromName($test["in"]));
             file_put_contents($outDir . $test["out"], $zip->getFromName($test["out"]));
-            $db->insert(\meta\task_tests::__name__, $testDescription);
+            config::$db->insert(\meta\task_tests::__name__, $testDescription);
         }
 
         header("location:/?q=task/update/{$taskId}");

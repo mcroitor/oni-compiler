@@ -426,3 +426,9 @@ there.
     max-width: 1340px;
   }
 }
+
+@media (min-width: 1600px) {
+  .container {
+    max-width: 1520px;
+  }
+}

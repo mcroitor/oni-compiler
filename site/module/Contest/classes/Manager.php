@@ -2,6 +2,7 @@
 
 namespace Contest;
 
+use config;
 use \mc\route;
 
 class Manager
@@ -23,23 +24,16 @@ class Manager
         
         if (\User\Manager::isLogged()) {
             \config::addMainMenu([
-                "Contests" => "/?q=contest",
+                "Contests" => "/?q=contest/list",
             ]);
         }
     }
 
-    #[route('contest')]
-    public static function actions(array $params) {
-        $html = "<ul class='vertical-menu'>";
-        $links = [
+    public static function actions(): void {
+        \config::addAsideMenu([
             "list contests" => "contest/list",
             "create contest" => "contest/create",
-        ];
-        foreach ($links as $name => $link) {
-            $html .= "<li><a href='/?q={$link}' class='button w-200px'>{$name}</a></li>";
-        }
-        $html .= "</ul>";
-        return $html;
+        ]);
     }
 
     /**
@@ -53,13 +47,14 @@ class Manager
         $from = empty($params[0]) ? 0 : (int) $params[0];
         $offset = empty($params[1]) ? 20 : (int) $params[1];
 
-        $db = new \mc\sql\database(\config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\contests::__name__);
+        self::actions();
+
+        $crud = new \mc\sql\crud(\config::$db, \meta\contests::__name__);
         $contests = $crud->all($from, $offset);
 
         $list = "";
 
-        \mc\logger::stderr()->info("contests: " . json_encode($contests));
+        \config::$logger->info("contests: " . json_encode($contests));
 
         foreach ($contests as $contest) {
             $list .= \mc\template::load(
@@ -89,6 +84,7 @@ class Manager
     #[route('contest/create')]
     public static function create(array $params)
     {
+        self::actions();
         if (isset($_POST["create-contest"])) {
             $contestId = self::insertData();
             self::createStructure($contestId);
@@ -117,9 +113,9 @@ class Manager
             header("location:/?q=contest/update/{$contestId}");
             return "";
         }
+        self::actions();
         $contestId = empty($params[0]) ? 0 : (int) $params[0];
-        $db = new \mc\sql\database(\config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\contests::__name__);
+        $crud = new \mc\sql\crud(config::$db, \meta\contests::__name__);
         $contest = $crud->select($contestId);
         $tpl = \mc\template::load(
             self::templates_dir . "contest.update.tpl.php",
@@ -144,9 +140,12 @@ class Manager
     #[route('contest/view')]
     public static function view(array $params)
     {
+        self::actions();
         $contestId = empty($params[0]) ? -1 : (int) $params[0];
-        $db = new \mc\sql\database(\config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\contests::__name__);
+        config::addAsideMenu([
+            "enrol users" => "/?q=contest/enrol/{$contestId}",
+        ]);
+        $crud = new \mc\sql\crud(config::$db, \meta\contests::__name__);
         $contest = $crud->select($contestId);
 
         if (empty($contest)) {
@@ -158,6 +157,7 @@ class Manager
             \mc\template::comment_modifiers
         );
         return $tpl->fill([
+            "contest-id" => $contest[\meta\contests::ID],
             "contest-name" => $contest[\meta\contests::NAME],
             "contest-description" => $contest[\meta\contests::DESCRIPTION],
             "contest-start" => $contest[\meta\contests::START],
@@ -175,9 +175,8 @@ class Manager
     public static function remove(array $params)
     {
         $id = empty($params[0]) ? -1 : (int) $params[0];
-        $db = new \mc\sql\database(\config::dsn);
 
-        $db->delete(\meta\contests::__name__, [\meta\contests::ID => $id]);
+        config::$db->delete(\meta\contests::__name__, [\meta\contests::ID => $id]);
         // delete relation contest <-> tasks
         // $db->delete(\meta\task_tests::__name__, [\meta\task_tests::TASK_ID => $id]);
         // delete files
@@ -192,15 +191,14 @@ class Manager
      */
     private static function insertData()
     {
-        $db = new \mc\sql\database(\config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\contests::__name__);
+        $crud = new \mc\sql\crud(config::$db, \meta\contests::__name__);
         $data = [
             \meta\contests::NAME => filter_input(INPUT_POST, "contest-name"),
             \meta\contests::DESCRIPTION => filter_input(INPUT_POST, "contest-description"),
             \meta\contests::START => filter_input(INPUT_POST, "contest-start"),
             \meta\contests::END => filter_input(INPUT_POST, "contest-end"),
         ];
-        \mc\logger::stderr()->info("contest data prepared: " . json_encode($data));
+        config::$logger->info("contest data prepared: " . json_encode($data));
         return $crud->insert($data);
     }
 
@@ -220,7 +218,7 @@ class Manager
      */
     public static function getContestPath($contestId)
     {
-        return \config::contests_dir . "{$contestId}/";
+        return config::contests_dir . "{$contestId}/";
     }
 
     /**
@@ -229,8 +227,7 @@ class Manager
      */
     public static function updateData()
     {
-        $db = new \mc\sql\database(\config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\contests::__name__);
+        $crud = new \mc\sql\crud(config::$db, \meta\contests::__name__);
         $data = [
             \meta\contests::ID => filter_input(INPUT_POST, "contest-id"),
             \meta\contests::NAME => filter_input(INPUT_POST, "contest-name"),
@@ -238,7 +235,7 @@ class Manager
             \meta\contests::START => filter_input(INPUT_POST, "contest-start"),
             \meta\contests::END => filter_input(INPUT_POST, "contest-end"),
         ];
-        \mc\logger::stderr()->info("contest data prepared: " . json_encode($data));
+        config::$logger->info("contest data prepared: " . json_encode($data));
         $crud->update($data);
         return $data[\meta\contests::ID];
     }
@@ -260,8 +257,7 @@ class Manager
 
     private static function tasksInContest($contestId)
     {
-        $db = new \mc\sql\database(\config::dsn);
-        $taskIds = $db->select_column(
+        $taskIds = config::$db->select_column(
             \meta\contest_tasks::__name__,
             \meta\contest_tasks::TASK_ID,
             [\meta\contest_tasks::CONTEST_ID => $contestId]
@@ -286,14 +282,13 @@ class Manager
 
     private static function tasksOutOfContest($contestId)
     {
-        $db = new \mc\sql\database(\config::dsn);
-        $taskIds = $db->select_column(
+        $taskIds = config::$db->select_column(
             \meta\contest_tasks::__name__,
             \meta\contest_tasks::TASK_ID,
             [\meta\contest_tasks::CONTEST_ID => $contestId]
         );
 
-        $tasks = $db->select(\meta\tasks::__name__);
+        $tasks = config::$db->select(\meta\tasks::__name__);
         $result = "";
         $tpl = \mc\template::load(
             self::templates_dir . "contest.tasks.element-out.tpl.php",
@@ -311,7 +306,7 @@ class Manager
                 "task-time" => $task[\meta\tasks::TIME],
                 "task-memory" => $task[\meta\tasks::MEMORY],
             ])->value();
-            if ($count >= \config::items_per_page) {
+            if ($count >= config::items_per_page) {
                 break;
             }
         }
@@ -329,8 +324,8 @@ class Manager
             ],
         ];
         $post = filter_input_array(INPUT_POST, $args);
-        $db = new \mc\sql\database(\config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\contest_tasks::__name__);
+
+        $crud = new \mc\sql\crud(config::$db, \meta\contest_tasks::__name__);
         $selectedTasks = $post["tasks"];
 
         foreach ($selectedTasks as $taskId => $value) {
@@ -345,13 +340,22 @@ class Manager
         return "";
     }
 
-    #[route('contest/participants')]
+    #[route('contest/enrol')]
     public static function participants(array $params)
     {
+        self::actions();
         $contestId = empty($params[0]) ? 0 : (int) $params[0];
+        if($contestId == 0) {
+            header("location:/?q=contest/list");
+            return "";
+        }
+
+        config::addAsideMenu([
+            "Contest description" => "/?q=contest/view/{$contestId}",
+        ]);
 
         return \mc\template::load(
-            self::templates_dir . "contest.addparticipants.tpl.php",
+            self::templates_dir . "contest.enrol.tpl.php",
             \mc\template::comment_modifiers
         )->fill([
             "contest-id" => $contestId,
@@ -362,8 +366,7 @@ class Manager
 
     private static function usersInContest($contestId)
     {
-        $db = new \mc\sql\database(\config::dsn);
-        $userIds = $db->select_column(
+        $userIds = config::$db->select_column(
             \meta\contestants::__name__,
             \meta\contestants::USER_ID,
             [\meta\contestants::CONTEST_ID => $contestId]
@@ -387,14 +390,13 @@ class Manager
 
     private static function usersOutOfContest($contestId)
     {
-        $db = new \mc\sql\database(\config::dsn);
-        $usersIds = $db->select_column(
+        $usersIds = config::$db->select_column(
             \meta\contestants::__name__,
             \meta\contestants::USER_ID,
             [\meta\contest_tasks::CONTEST_ID => $contestId]
         );
 
-        $users = $db->select(\meta\users::__name__);
+        $users = config::$db->select(\meta\users::__name__);
         $result = "";
         $tpl = \mc\template::load(
             self::templates_dir . "contest.users.tpl.php",
@@ -429,8 +431,8 @@ class Manager
             ],
         ];
         $post = filter_input_array(INPUT_POST, $args);
-        $db = new \mc\sql\database(\config::dsn);
-        $crud = new \mc\sql\crud($db, \meta\contestants::__name__);
+
+        $crud = new \mc\sql\crud(config::$db, \meta\contestants::__name__);
         $selectedUsers = $post["users"];
 
         foreach ($selectedUsers as $userId => $value) {
@@ -440,7 +442,7 @@ class Manager
             ];
             $crud->insert($data);
         }
-        header("location:/?q=contest/participants/{$contestId}");
+        header("location:/?q=contest/enrol/{$contestId}");
         return "";
     }
 

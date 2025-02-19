@@ -1,6 +1,13 @@
 <script src="./scripts/showdown.js"></script>
 <article class="container">
-    <h3 class="header row"><!-- task-name --></h3>
+    <div class="row">
+        <h3 class="header">
+            <!-- task-name -->
+            <a href="/?q=task/update/<!-- task-id -->" style="float:right">
+                <img class="icon" src="./images/editing.png" alt="edit task" />
+            </a>
+        </h3>
+    </div>
     <div class="body row">
         <div id="task-description"><!-- task-description --></div>
     </div>
@@ -25,10 +32,10 @@
     <a href="/?q=task/list" class="button">Back to tasks</a>
 </div>
 <script>
-function get(id) {
-    return document.getElementById(id);
-}
-var converter = new showdown.Converter();
+    function get(id) {
+        return document.getElementById(id);
+    }
+    var converter = new showdown.Converter();
 
-get("task-description").innerHTML = converter.makeHtml(get("task-description").innerHTML);
+    get("task-description").innerHTML = converter.makeHtml(get("task-description").innerHTML);
 </script>
