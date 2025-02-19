@@ -253,3 +253,11 @@ h4.subtitle {
 .align-left {
     text-align: left;
 }
+
+ul.vertical-menu {
+    list-style: none;
+}
+
+ul.vertical-menu li {
+    margin-bottom: 0;
+}

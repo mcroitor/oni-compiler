@@ -30,7 +30,7 @@ class Manager
 
     #[route('contest')]
     public static function actions(array $params) {
-        $html = "<ul>";
+        $html = "<ul class='vertical-menu'>";
         $links = [
             "list contests" => "contest/list",
             "create contest" => "contest/create",

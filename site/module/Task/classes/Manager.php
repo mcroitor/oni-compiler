@@ -13,12 +13,18 @@ class Manager
 
     private static function getTaskPath(string $taskId)
     {
-        return config::tasks_dir . "/{$taskId}/";
+        return \mc\filesystem::normalize(
+            \config::tasks_dir . "/{$taskId}/",
+            \config::DS
+        );
     }
 
     private static function getTestTaskPath(string $taskId)
     {
-        return self::getTaskPath($taskId) . "tests/";
+        return \mc\filesystem::normalize(
+            self::getTaskPath($taskId) . "tests/",
+            \config::DS
+        );
     }
 
     public static function init()
@@ -34,7 +40,7 @@ class Manager
     #[\mc\route("task")]
     public static function actions(array $params)
     {
-        $html = "<ul>";
+        $html = "<ul class='vertical-menu'>";
         $links = [
             "list tasks" => "/?q=task/list",
             "add a task" => "/?q=task/create",
@@ -193,7 +199,8 @@ class Manager
         // delete tests
         $db->delete(\meta\task_tests::__name__, [\meta\task_tests::TASK_ID => $id]);
         // delete files
-        // TODO #: implement this
+        $taskPath = self::getTaskPath($id);
+        \mc\filesystem::unlink($taskPath);
         header("location:/?q=task/list");
         return "";
     }
@@ -364,7 +371,7 @@ class Manager
     #[\mc\route("task/tests")]
     public static function testsUpload(array $params)
     {
-        if(empty($params)) {
+        if (empty($params)) {
             return "task not found";
         }
         $taskId = (int)$params[0];
@@ -372,10 +379,11 @@ class Manager
         $db = new \mc\sql\database(config::dsn);
         $crud = new \mc\sql\crud($db, \meta\task_tests::__name__);
 
-        if(empty($_FILES)) {
+        if (empty($_FILES)) {
             return template::load(
                 self::templates_dir . "task.tests.upload.tpl.php",
-                template::comment_modifiers)->fill([
+                template::comment_modifiers
+            )->fill([
                 "task-id" => $taskId,
             ])->value();
         }

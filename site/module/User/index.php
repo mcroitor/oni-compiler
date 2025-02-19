@@ -12,7 +12,7 @@ function init()
 {
     \User\Manager::init();
 
-    $query = $_GET["q"] ?? "/";
+    $query = filter_input(INPUT_GET, "q") ?? "/";
 
     if (!\User\Manager::isLogged() && $query != "user/login") {
         \mc\logger::stderr()->error("User is not logged in");

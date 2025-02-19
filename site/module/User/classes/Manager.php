@@ -45,7 +45,7 @@ class Manager
 
     #[route('user')]
     public static function actions(array $params) {
-        $html = "<ul>";
+        $html = "<ul class='vertical-menu'>";
         $links = [
             "list users" => "/?q=user/list",
             "add a user" => "/?q=user/add",
