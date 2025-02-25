@@ -467,6 +467,7 @@ class Manager
 
         config::addAsideMenu([
             "Contest description" => "/?q=contest/view/{$contestId}",
+            "Evaluate" => "/?q=contest/evaluate/{$contestId}",
         ]);
 
         $task_names = [];
@@ -502,5 +503,16 @@ class Manager
             "contest-tasks" => $th_tasks,
             "contestants" => $rows,
         ])->value();
+    }
+
+    #[route('contest/evaluate')]
+    public static function evaluate(array $args): string{
+        $contestId = empty($args[0]) ? 0 : (int) $args[0];
+        if($contestId == 0) {
+            header("location:/?q=contest/list");
+            return "";
+        }
+        // TODO #: implement this
+        return "";
     }
 }

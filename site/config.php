@@ -17,7 +17,7 @@ class config
     public const tasks_dir = self::data_dir . self::DS . "tasks";
     public const tmp_dir = self::data_dir . self::DS . "tmp";
 
-    public const languages_config = self::root_dir . self::DS . "config.json";
+    public const languages_config = self::data_dir . self::DS . "profiles.json";
 
     public const salt = "unpredictable_salt_value";
 

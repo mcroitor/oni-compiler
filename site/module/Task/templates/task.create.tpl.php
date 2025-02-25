@@ -2,12 +2,7 @@
 <form method="post" action="/?q=task/create">
     <fieldset>
         <table class='u-full-width'>
-            <caption></caption>
-            <tr>
-                <th colspan="2">
-                    <legend>task definition</legend>
-                </th>
-            </tr>
+            <caption>task definition</caption>
             <tr>
                 <td class="three">
                     <label for="task-name">name</label>
