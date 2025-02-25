@@ -38,7 +38,7 @@ class LanguageProfile
         return $this->name;
     }
 
-    public function CanCompile(string $extension): bool
+    public function Support(string $extension): bool
     {
         return in_array($extension, $this->extensions);
     }
@@ -70,5 +70,35 @@ class LanguageProfile
             self::INTERPRETER_PATH => $this->interpreter_path,
         ];
         return (new \mc\template($this->execute_command))->fill($data)->value();
+    }
+
+    public function GetExtensions(): array
+    {
+        return $this->extensions;
+    }
+
+    public function GetCompilerPath(): string
+    {
+        return $this->compiler_path;
+    }
+
+    public function GetCompilerOutput(): string
+    {
+        return $this->compiler_output;
+    }
+
+    public function GetCompileCommand(): string
+    {
+        return $this->compile_command;
+    }
+
+    public function GetInterpreterPath(): string
+    {
+        return $this->interpreter_path;
+    }
+
+    public function GetExecuteCommand(): string
+    {
+        return $this->execute_command;
     }
 }

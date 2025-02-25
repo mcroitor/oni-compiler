@@ -5,6 +5,8 @@
             <th>profile name</th>
             <th>compiler line</th>
             <th>execution line</th>
+            <th>validate</th>
+            <th>delete</th>
         </tr>
     </thead>
     <tbody>

@@ -7,7 +7,7 @@
                     <label for="profile-name">name</label>
                 </td>
                 <td class="nine">
-                    <input type="text" name="profile-name" id="profile-name" class='u-full-width' />
+                    <input type="text" name="profile-name" id="profile-name" value="<!-- profile-name -->" class='u-full-width' />
                 </td>
             </tr>
             <tr>
@@ -15,7 +15,7 @@
                     <label for="extensions">extensions</label>
                 </td>
                 <td>
-                    <input type="text" name="extensions" id="extensions" class='u-full-width' />
+                    <input type="text" name="extensions" id="extensions" value="<!-- extensions -->" class='u-full-width' />
                 </td>
             </tr>
             <tr>
@@ -23,7 +23,7 @@
                     <label for="compiler-path">compiler path</label>
                 </td>
                 <td>
-                    <input type="text" name="compiler-path" id="compiler-path" class='u-full-width' />
+                    <input type="text" name="compiler-path" id="compiler-path" value="<!-- compiler-path -->" class='u-full-width' />
                 </td>
             </tr>
             <tr>
@@ -31,7 +31,7 @@
                     <label for="compiler-output">compiler output</label>
                 </td>
                 <td>
-                    <input type="text" name="compiler-output" id="compiler-output" class='u-full-width' />
+                    <input type="text" name="compiler-output" id="compiler-output" value="<!-- compiler-output -->" class='u-full-width' />
                 </td>
             </tr>
             <tr>
@@ -47,7 +47,7 @@
                     <label for="interpreter-path">interpreter path</label>
                 </td>
                 <td>
-                    <input type="text" name="interpreter-path" id="interpreter-path" class='u-full-width' />
+                    <input type="text" name="interpreter-path" id="interpreter-path" value="<!-- interpreter-path -->" class='u-full-width' />
                 </td>
             </tr>
             <tr>
@@ -60,7 +60,7 @@
             </tr>
             <tr>
                 <td colspan="2">
-                    <input type="submit" value="create" />
+                    <input type="submit" value="<!-- action -->" />
                 </td>
             </tr>
         </table>
