@@ -132,16 +132,31 @@ class Manager
         $za->open($zip, \ZipArchive::RDONLY);
 
         $contestJson = $za->getFromName("contest.json");
-        $contest = (array)json_decode($contestJson);
+        if ($contestJson === false) {
+            config::$logger->Error("cant import contest: contest.json is missing in archive");
+            return -1;
+        }
+        $contest = json_decode($contestJson, true);
+        if (!is_array($contest) || json_last_error() !== JSON_ERROR_NONE) {
+            config::$logger->Error("cant import contest: contest.json is invalid JSON");
+            return -1;
+        }
         unset($contest[\meta\contests::ID]);
+
+        $tasksJson = $za->getFromName("tasks.json");
+        if ($tasksJson === false) {
+            config::$logger->Error("cant import contest: tasks.json is missing in archive");
+            return -1;
+        }
+        $taskIds = json_decode($tasksJson, true);
+        if (!is_array($taskIds) || json_last_error() !== JSON_ERROR_NONE) {
+            config::$logger->Error("cant import contest: tasks.json is invalid JSON");
+            return -1;
+        }
 
         $crud = new Crud(config::$db, \meta\contests::__name__);
         $contestId = $crud->Insert($contest);
         self::createStructure($contestId);
-
-        $tasksJson = $za->getFromName("tasks.json");
-        $taskIds = (array)json_decode($tasksJson);
-
         $taskCrud = new Crud(config::$db, \meta\tasks::__name__);
         $taskTestCrud = new Crud(config::$db, \meta\task_tests::__name__);
         $contestTaskCrud = new Crud(config::$db, \meta\contest_tasks::__name__);
