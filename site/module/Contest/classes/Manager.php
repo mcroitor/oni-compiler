@@ -106,6 +106,17 @@ class Manager
     {
         self::actions();
         if (isset($_POST["import-contest"])) {
+            if (
+                !isset($_FILES['contest']) ||
+                !is_array($_FILES['contest']) ||
+                !array_key_exists('error', $_FILES['contest']) ||
+                $_FILES['contest']['error'] !== UPLOAD_ERR_OK ||
+                empty($_FILES['contest']['tmp_name']) ||
+                !is_uploaded_file($_FILES['contest']['tmp_name'])
+            ) {
+                header("location:/?q=contest/import");
+                return "";
+            }
             $contestId = self::importContest($_FILES['contest']['tmp_name']);
             if ($contestId > 0) {
                 header("location:/?q=contest/update/{$contestId}");
@@ -129,7 +140,11 @@ class Manager
         }
 
         $za = new \ZipArchive;
-        $za->open($zip, \ZipArchive::RDONLY);
+        $openResult = $za->open($zip, \ZipArchive::RDONLY);
+        if ($openResult !== true) {
+            config::$logger->Error("can't import contest: unable to open zip archive, error code: " . $openResult);
+            return -1;
+        }
 
         $contestJson = $za->getFromName("contest.json");
         if ($contestJson === false) {
@@ -174,21 +189,53 @@ class Manager
             mkdir($testsDir, 0777, true);
 
             $testsJson = $za->getFromName("tasks/{$oldTaskId}/tests.json");
-            $tests = (array)json_decode($testsJson);
+            if ($testsJson === false) {
+                config::$logger->Error("can't import contest: tests.json is missing for task {$oldTaskId}");
+                $tests = [];
+            } else {
+                $tests = json_decode($testsJson, true);
+                if (!is_array($tests) || json_last_error() !== JSON_ERROR_NONE) {
+                    config::$logger->Error("can't import contest: tests.json is invalid JSON for task {$oldTaskId}");
+                    $tests = [];
+                }
+            }
             
-            $taskDir = \Mc\Filesystem\Manager::Normalize(config::tasks_dir . "/{$newTaskId}/");
-            $testsDir = \Mc\Filesystem\Manager::Implode([$taskDir, "tests"]);
-            
+            $sanitizeTestFilename = function ($name) {
+                if (!is_string($name) || $name === '') {
+                    throw new \InvalidArgumentException("Invalid test filename.");
+                }
+                if (strpos($name, '/') !== false || strpos($name, '\\') !== false) {
+                    throw new \InvalidArgumentException("Invalid test filename.");
+                }
+                if (strpos($name, '..') !== false) {
+                    throw new \InvalidArgumentException("Invalid test filename.");
+                }
+                if ($name[0] === '/' || $name[0] === '\\') {
+                    throw new \InvalidArgumentException("Invalid test filename.");
+                }
+                if (preg_match('/^[A-Za-z]:/', $name) === 1) {
+                    throw new \InvalidArgumentException("Invalid test filename.");
+                }
+                return $name;
+            };
+
             foreach ($tests as $test) {
                 $test = (array)$test;
                 unset($test[\meta\task_tests::ID]);
                 $test[\meta\task_tests::TASK_ID] = $newTaskId;
                 $taskTestCrud->Insert($test);
-                
-                $inputFile = $za->getFromName("tasks/{$oldTaskId}/tests/" . $test[\meta\task_tests::INPUT]);
-                $outputFile = $za->getFromName("tasks/{$oldTaskId}/tests/" . $test[\meta\task_tests::OUTPUT]);
-                file_put_contents($testsDir . $test[\meta\task_tests::INPUT], $inputFile);
-                file_put_contents($testsDir . $test[\meta\task_tests::OUTPUT], $outputFile);
+
+                $inputName = $sanitizeTestFilename($test[\meta\task_tests::INPUT]);
+                $outputName = $sanitizeTestFilename($test[\meta\task_tests::OUTPUT]);
+
+                $inputFile = $za->getFromName("tasks/{$oldTaskId}/tests/" . $inputName);
+                $outputFile = $za->getFromName("tasks/{$oldTaskId}/tests/" . $outputName);
+                if ($inputFile !== false) {
+                    file_put_contents(\Mc\Filesystem\Manager::Implode([$testsDir, $inputName]), $inputFile);
+                }
+                if ($outputFile !== false) {
+                    file_put_contents(\Mc\Filesystem\Manager::Implode([$testsDir, $outputName]), $outputFile);
+                }
             }
 
             $contestTaskCrud->Insert([
@@ -656,6 +703,12 @@ class Manager
     #[Route("contest/export")]
     public static function export(array $params)
     {
+        $currentUserRoleId = $_SESSION["user"][\meta\users::ROLE_ID];
+        if ($currentUserRoleId !== \User\Role::ADMIN && $currentUserRoleId !== \User\Role::CONTEST_CREATOR) {
+            header("location:/?q=contest/list");
+            return "";
+        }
+
         $contestId = empty($params[0]) ? -1 : (int) $params[0];
         if ($contestId == -1) {
             header("location:/?q=contest/list");
@@ -666,8 +719,15 @@ class Manager
         $contest = $crud->select($contestId);
 
         $taskIds = self::tasks_in($contestId);
-        
-        $userIds = self::contestants($contestId);
+
+        $contestants = config::$db->Select(
+            \meta\contestants::__name__,
+            ['*'],
+            [\meta\contestants::CONTEST_ID => $contestId]
+        );
+        $userIds = array_column($contestants, \meta\contestants::USER_ID);
+        $contestantIdsByUserId = array_column($contestants, \meta\contestants::ID, \meta\contestants::USER_ID);
+
         $participants = [];
         foreach ($userIds as $userId) {
             $user = \User\Manager::get($userId);
@@ -682,7 +742,14 @@ class Manager
         $filePath = self::getContestPath($contestId) . $fileName;
 
         $za = new \ZipArchive;
-        $za->open($filePath, \ZipArchive::CREATE);
+        $openResult = $za->open($filePath, \ZipArchive::CREATE);
+        if ($openResult !== true) {
+            config::$logger->Error("Failed to create contest ZIP archive at '{$filePath}', error code: {$openResult}");
+            header("HTTP/1.1 500 Internal Server Error");
+            header("Content-Type: text/plain; charset=UTF-8");
+            echo "An error occurred while generating the contest archive.";
+            exit();
+        }
         $za->addFromString("contest.json", json_encode($contest));
         $za->addFromString("tasks.json", json_encode($taskIds));
         $za->addFromString("participants.json", json_encode($participants));
@@ -712,10 +779,14 @@ class Manager
         
         $za->addEmptyDir("solutions");
         foreach ($userIds as $userId) {
+            if (!isset($contestantIdsByUserId[$userId])) {
+                continue;
+            }
+            $contestantId = $contestantIdsByUserId[$userId];
             $solutions = config::$db->Select(
                 \meta\solutions::__name__,
                 ['*'],
-                [\meta\solutions::CONTESTANT_ID => $userId]
+                [\meta\solutions::CONTESTANT_ID => $contestantId]
             );
             
             $za->addEmptyDir("solutions/user_{$userId}");
@@ -729,11 +800,18 @@ class Manager
         
         $za->close();
 
+        if (!file_exists($filePath) || !is_readable($filePath)) {
+            header('HTTP/1.1 500 Internal Server Error');
+            echo "Failed to generate export archive.";
+            return "";
+        }
+
         header("Content-Type: application/zip");
         header("Content-Disposition: attachment; filename={$fileName}");
         header("Content-Length: " . filesize($filePath));
 
         readfile($filePath);
+        unlink($filePath);
         exit();
     }
 }
