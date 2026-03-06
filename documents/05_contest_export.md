@@ -1,17 +1,17 @@
 # Contest export structure
 
-Экспорт конкурса представляет собой ZIP-архив со следующей структурой:
+A contest export is a ZIP archive with the following structure:
 
 ```
 contest_{id}.zip
-├── contest.json       # данные конкурса
-├── tasks.json         # список ID задач
-├── participants.json  # список участников
+├── contest.json       # contest data
+├── tasks.json         # list of task IDs
+├── participants.json  # list of participants
 ├── tasks/
 │   ├── {task_id}/
-│   │   ├── task.json  # определение задачи
-│   │   ├── tests.json # определение тестов
-│   │   └── tests/     # файлы тестов
+│   │   ├── task.json  # task definition
+│   │   ├── tests.json # tests definition
+│   │   └── tests/     # test files
 │   │       ├── 01.input
 │   │       └── 01.output
 │   └── ...
@@ -23,16 +23,16 @@ contest_{id}.zip
     └── ...
 ```
 
-## Файлы
+## Files
 
 ### contest.json
-Данные конкурса из таблицы `contests`.
+Contest data from the `contests` table.
 
 ### tasks.json
-Массив ID задач, входящих в конкурс.
+Array of task IDs included in the contest.
 
 ### participants.json
-Массив участников конкурса:
+Array of contest participants:
 ```json
 [
   {
@@ -44,10 +44,10 @@ contest_{id}.zip
 ```
 
 ### tasks/{task_id}/task.json
-Определение задачи из таблицы `tasks`.
+Task definition from the `tasks` table.
 
 ### tasks/{task_id}/tests.json
-Массив тестов задачи из таблицы `task_tests`.
+Array of task tests from the `task_tests` table.
 
 ### solutions/user_{user_id}/
-Решения участника - файлы исходного кода.
+Participant's solutions - source code files.
