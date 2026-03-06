@@ -41,6 +41,7 @@
     </div>
 </article>
 <div class="container">
+    <a href="/?q=contest/export/<!-- contest-id -->" class="button">Export contest</a>
     <a href="/?q=contest/solutions/<!-- contest-id -->" class="button">Import solutions</a>
     <a href="/?q=contest/list" class="button">Back to contests</a>
 </div>

@@ -101,6 +101,103 @@ class Manager
         )->Value();
     }
 
+    #[Route('contest/import')]
+    public static function import(array $params)
+    {
+        self::actions();
+        if (isset($_POST["import-contest"])) {
+            $contestId = self::importContest($_FILES['contest']['tmp_name']);
+            if ($contestId > 0) {
+                header("location:/?q=contest/update/{$contestId}");
+            } else {
+                header("location:/?q=contest/list");
+            }
+            return "";
+        }
+
+        return Helper::Template(
+            "contest.import",
+            self::templates_dir
+        )->Value();
+    }
+
+    public static function importContest(string $zip): int
+    {
+        if (file_exists($zip) === false) {
+            config::$logger->Error("cant import contest: file does not exists");
+            return -1;
+        }
+
+        $za = new \ZipArchive;
+        $za->open($zip, \ZipArchive::RDONLY);
+
+        $contestJson = $za->getFromName("contest.json");
+        $contest = (array)json_decode($contestJson);
+        unset($contest[\meta\contests::ID]);
+
+        $crud = new Crud(config::$db, \meta\contests::__name__);
+        $contestId = $crud->Insert($contest);
+        self::createStructure($contestId);
+
+        $tasksJson = $za->getFromName("tasks.json");
+        $taskIds = (array)json_decode($tasksJson);
+
+        $taskCrud = new Crud(config::$db, \meta\tasks::__name__);
+        $taskTestCrud = new Crud(config::$db, \meta\task_tests::__name__);
+        $contestTaskCrud = new Crud(config::$db, \meta\contest_tasks::__name__);
+
+        foreach ($taskIds as $oldTaskId) {
+            $taskDataJson = $za->getFromName("tasks/{$oldTaskId}/task.json");
+            $taskData = (array)json_decode($taskDataJson);
+            unset($taskData[\meta\tasks::ID]);
+            
+            $newTaskId = $taskCrud->Insert($taskData);
+            
+            $taskDir = \Mc\Filesystem\Manager::Normalize(config::tasks_dir . "/{$newTaskId}/");
+            $testsDir = \Mc\Filesystem\Manager::Implode([$taskDir, "tests"]);
+            mkdir($taskDir, 0777, true);
+            mkdir($testsDir, 0777, true);
+
+            $testsJson = $za->getFromName("tasks/{$oldTaskId}/tests.json");
+            $tests = (array)json_decode($testsJson);
+            
+            $taskDir = \Mc\Filesystem\Manager::Normalize(config::tasks_dir . "/{$newTaskId}/");
+            $testsDir = \Mc\Filesystem\Manager::Implode([$taskDir, "tests"]);
+            
+            foreach ($tests as $test) {
+                $test = (array)$test;
+                unset($test[\meta\task_tests::ID]);
+                $test[\meta\task_tests::TASK_ID] = $newTaskId;
+                $taskTestCrud->Insert($test);
+                
+                $inputFile = $za->getFromName("tasks/{$oldTaskId}/tests/" . $test[\meta\task_tests::INPUT]);
+                $outputFile = $za->getFromName("tasks/{$oldTaskId}/tests/" . $test[\meta\task_tests::OUTPUT]);
+                file_put_contents($testsDir . $test[\meta\task_tests::INPUT], $inputFile);
+                file_put_contents($testsDir . $test[\meta\task_tests::OUTPUT], $outputFile);
+            }
+
+            $contestTaskCrud->Insert([
+                \meta\contest_tasks::CONTEST_ID => $contestId,
+                \meta\contest_tasks::TASK_ID => $newTaskId,
+                \meta\contest_tasks::WEIGHT => 0,
+            ]);
+        }
+
+        $participantsJson = $za->getFromName("participants.json");
+        $participants = (array)json_decode($participantsJson);
+
+        $contestantCrud = new Crud(config::$db, \meta\contestants::__name__);
+        foreach ($participants as $participant) {
+            $contestantCrud->Insert([
+                \meta\contestants::CONTEST_ID => $contestId,
+                \meta\contestants::USER_ID => $participant->id,
+            ]);
+        }
+
+        $za->close();
+        return $contestId;
+    }
+
     /**
      * update contest if is set $_POST["update-contest"],
      * otherwise show update contest form
@@ -539,5 +636,89 @@ class Manager
         }
         // TODO #: implement this
         return "";
+    }
+
+    #[Route("contest/export")]
+    public static function export(array $params)
+    {
+        $contestId = empty($params[0]) ? -1 : (int) $params[0];
+        if ($contestId == -1) {
+            header("location:/?q=contest/list");
+            return "";
+        }
+
+        $crud = new Crud(config::$db, \meta\contests::__name__);
+        $contest = $crud->select($contestId);
+
+        $taskIds = self::tasks_in($contestId);
+        
+        $userIds = self::contestants($contestId);
+        $participants = [];
+        foreach ($userIds as $userId) {
+            $user = \User\Manager::get($userId);
+            $participants[] = [
+                "id" => $userId,
+                "firstname" => $user[\meta\users::FIRSTNAME],
+                "lastname" => $user[\meta\users::LASTNAME],
+            ];
+        }
+
+        $fileName = "contest_{$contestId}.zip";
+        $filePath = self::getContestPath($contestId) . $fileName;
+
+        $za = new \ZipArchive;
+        $za->open($filePath, \ZipArchive::CREATE);
+        $za->addFromString("contest.json", json_encode($contest));
+        $za->addFromString("tasks.json", json_encode($taskIds));
+        $za->addFromString("participants.json", json_encode($participants));
+        
+        foreach ($taskIds as $taskId) {
+            $task = \Task\Manager::get($taskId);
+            $task_tests = config::$db->Select(\meta\task_tests::__name__, ['*'], [\meta\task_tests::TASK_ID => $taskId]);
+            
+            $taskDir = \Mc\Filesystem\Manager::Normalize(config::tasks_dir . "/{$taskId}/");
+            $testsDir = \Mc\Filesystem\Manager::Implode([$taskDir, "tests"]);
+
+            $za->addFromString("tasks/{$taskId}/task.json", json_encode($task));
+            $za->addFromString("tasks/{$taskId}/tests.json", json_encode($task_tests));
+            
+            $za->addEmptyDir("tasks/{$taskId}/tests");
+            foreach ($task_tests as $test) {
+                $inputFile = \Mc\Filesystem\Manager::Implode([$testsDir, $test[\meta\task_tests::INPUT]]);
+                $outputFile = \Mc\Filesystem\Manager::Implode([$testsDir, $test[\meta\task_tests::OUTPUT]]);
+                if (file_exists($inputFile)) {
+                    $za->addFile($inputFile, "tasks/{$taskId}/tests/" . $test[\meta\task_tests::INPUT]);
+                }
+                if (file_exists($outputFile)) {
+                    $za->addFile($outputFile, "tasks/{$taskId}/tests/" . $test[\meta\task_tests::OUTPUT]);
+                }
+            }
+        }
+        
+        $za->addEmptyDir("solutions");
+        foreach ($userIds as $userId) {
+            $solutions = config::$db->Select(
+                \meta\solutions::__name__,
+                ['*'],
+                [\meta\solutions::CONTESTANT_ID => $userId]
+            );
+            
+            $za->addEmptyDir("solutions/user_{$userId}");
+            foreach ($solutions as $solution) {
+                $solutionPath = $solution[\meta\solutions::PATH];
+                if (file_exists($solutionPath)) {
+                    $za->addFile($solutionPath, "solutions/user_{$userId}/" . basename($solutionPath));
+                }
+            }
+        }
+        
+        $za->close();
+
+        header("Content-Type: application/zip");
+        header("Content-Disposition: attachment; filename={$fileName}");
+        header("Content-Length: " . filesize($filePath));
+
+        readfile($filePath);
+        exit();
     }
 }
