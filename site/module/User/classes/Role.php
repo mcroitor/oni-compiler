@@ -17,8 +17,7 @@ class Role
         if (!empty(self::$roles) || $force) {
             return;
         }
-        $db = new \mc\sql\database(\config::dsn);
-        $roles = $db->select(\meta\roles::__name__);
+        $roles = \config::$db->Select(\meta\roles::__name__);
         foreach ($roles as $role) {
             self::$roles[$role[\meta\roles::ID]] = $role;
             self::$roles[$role[\meta\roles::ID]]['capabilities'] = self::capabilities($role[\meta\roles::ID]);
@@ -26,8 +25,7 @@ class Role
     }
 
     private static function capabilities(int $roleId): array {
-        $db = new \mc\sql\database(\config::dsn);
-        return $db->select(
+        return \config::$db->Select(
             \meta\role_capabilities::__name__, 
             [\meta\role_capabilities::CAPABILITY_ID],
             [\meta\role_capabilities::ROLE_ID => $roleId]

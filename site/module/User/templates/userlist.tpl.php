@@ -24,6 +24,6 @@
         </tr>
     </thead>
     <tbody>
-        <!-- userlist element -->
+        <!-- userlist-element -->
     </tbody>
 </table>

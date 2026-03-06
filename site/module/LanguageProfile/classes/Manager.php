@@ -5,7 +5,8 @@ namespace LanguageProfile;
 include_once __DIR__ . "/LanguageProfile.php";
 
 use config;
-use \mc\route;
+use \Mc\Route;
+use \Mc\Template as Template;
 
 class Manager
 {
@@ -52,7 +53,7 @@ class Manager
         ]);
     }
 
-    #[route("profile/list")]
+    #[Route("profile/list")]
     public static function list(array $params): string
     {
         self::actions();
@@ -60,25 +61,25 @@ class Manager
         $list = "";
         foreach (self::$languageProfiles as $key => $languageProfile) {
             $profile = new LanguageProfile($languageProfile);
-            $list .= \mc\template::load(
+            $list .= Template::Load(
                 self::templates_dir . "profile-list.element.tpl.php",
-                \mc\template::comment_modifiers
-            )->fill([
+                Template::CM
+            )->Fill([
                 "id" => $key,
                 "profile-name" => $profile->GetName(),
                 "compile-command" => $profile->CompileLine(),
                 "execute-command" => $profile->ExecuteLine(),
-            ])->value();
+            ])->Value();
         }
-        return \mc\template::load(
+        return Template::Load(
             self::templates_dir . "profile-list.tpl.php",
-            \mc\template::comment_modifiers
-        )->fill([
+            Template::CM
+        )->Fill([
             "profile-list-element" => $list
-        ])->value();
+        ])->Value();
     }
 
-    #[route("profile/create")]
+    #[Route("profile/create")]
     public static function create(array $params): string
     {
         if (isset($_POST["profile-name"])) {
@@ -102,10 +103,10 @@ class Manager
         }
         self::actions();
 
-        return \mc\template::load(
+        return Template::Load(
             self::templates_dir . "profile.create.tpl.php",
-            \mc\template::comment_modifiers
-        )->fill([
+            Template::CM
+        )->Fill([
             "profile-name" => "",
             "extensions" => "",
             "compiler-path" => "",
@@ -114,10 +115,10 @@ class Manager
             "interpreter-path" => "",
             "execute-command" => "{interpreter-path} {source}",
             "action" => "create",
-        ])->value();
+        ])->Value();
     }
 
-    #[route("profile/update")]
+    #[Route("profile/update")]
     public static function update(array $params): string
     {
         if (empty($params)) {
@@ -144,10 +145,10 @@ class Manager
         self::actions();
         $languageProfile = new LanguageProfile(self::$languageProfiles[$profileId]);
 
-        return \mc\template::load(
+        return Template::Load(
             self::templates_dir . "profile.create.tpl.php",
-            \mc\template::comment_modifiers
-        )->fill([
+            Template::CM
+        )->Fill([
             "profile-name" => $languageProfile->GetName(),
             "extensions" => implode(",", $languageProfile->GetExtensions()),
             "compiler-path" => $languageProfile->GetCompilerPath(),
@@ -156,10 +157,10 @@ class Manager
             "interpreter-path" => $languageProfile->GetInterpreterPath(),
             "execute-command" => $languageProfile->GetExecuteCommand(),
             "action" => "update",
-        ])->value();
+        ])->Value();
     }
 
-    #[route("profile/delete")]
+    #[Route("profile/delete")]
     public static function delete(array $params): string
     {
         if (empty($params)) {
@@ -173,7 +174,7 @@ class Manager
         exit();
     }
 
-    #[route("profile/validate")]
+    #[Route("profile/validate")]
     public static function validate(array $params): string
     {
         if (empty($params)) {
@@ -186,15 +187,15 @@ class Manager
         $compileCommand = $languageProfile->CompileLine();
         $executeCommand = $languageProfile->ExecuteLine();
 
-        return \mc\template::load(
+        return Template::Load(
             self::templates_dir . "profile.validate.tpl.php",
-            \mc\template::comment_modifiers
-        )->fill([
+            Template::CM
+        )->Fill([
             "profile-name" => $languageProfile->GetName(),
             "compile-command" => $compileCommand,
             "compile-output" => json_encode(shell_exec($compileCommand)),
             "execute-command" => $executeCommand,
             "execute-output" => json_encode(shell_exec($executeCommand)),
-        ])->value();
+        ])->Value();
     }
 }

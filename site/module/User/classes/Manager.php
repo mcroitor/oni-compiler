@@ -2,9 +2,12 @@
 
 namespace User;
 
+use \Core\Helper;
 use config;
-use \mc\template;
-use \mc\route;
+use \Mc\Template;
+use \Mc\Logger;
+use \Mc\Route;
+use \Mc\Sql\Crud;
 use \User\Role;
 
 class Manager
@@ -39,8 +42,8 @@ class Manager
 
     public static function get($userId)
     {
-        $crud = new \mc\sql\crud(config::$db, \meta\users::__name__);
-        return $crud->select($userId);
+        $crud = new Crud(config::$db, \meta\users::__name__);
+        return $crud->Select($userId);
     }
 
     public static function actions(): void
@@ -51,39 +54,39 @@ class Manager
         ]);
     }
 
-    #[route('user/list')]
+    #[Route('user/list')]
     public static function list(): string
     {
         self::actions();
-        $crud = new \mc\sql\crud(config::$db, \meta\users::__name__);
-        $users = $crud->all();
+        $crud = new Crud(config::$db, \meta\users::__name__);
+        $users = $crud->All();
 
         $list = "";
 
         foreach ($users as $user) {
-            $list .= template::load(
-                self::templates_dir . "userlist.element.tpl.php",
-                template::comment_modifiers
-            )->fill([
+            $list .= Helper::Template(
+                "userlist.element",
+                self::templates_dir
+            )->Fill([
                 "lastname" => $user[\meta\users::LASTNAME],
                 "firstname" => $user[\meta\users::FIRSTNAME],
                 "institution" => $user[\meta\users::INSTITUTION],
                 "email" => $user[\meta\users::EMAIL],
                 "role" => Role::getRoleName($user[\meta\users::ROLE_ID]),
-            ])->value();
+            ])->Value();
         }
-        return template::load(
-            self::templates_dir . "userlist.tpl.php",
-            template::comment_modifiers
-        )->fill([
-            "userlist element" => $list
-        ])->value();
+        return Helper::Template(
+            "userlist",
+            self::templates_dir
+        )->Fill([
+            "userlist-element" => $list
+        ])->Value();
     }
 
-    #[route('user/import')]
+    #[Route('user/import')]
     public static function import()
     {
-        \config::$logger->info("post data: " . json_encode($_POST));
+        config::$logger->Info("post data: " . json_encode($_POST));
         if (isset($_POST["MAX_FILE_SIZE"])) {
             self::registerUsers();
         }
@@ -92,7 +95,7 @@ class Manager
     }
 
     // add user
-    #[route('user/add')]
+    #[Route('user/add')]
     public static function add()
     {
         if (!empty($_POST["username"])) {
@@ -110,30 +113,30 @@ class Manager
             return "";
         }
         self::actions();
-        return template::load(
-            self::templates_dir . "useradd.tpl.php",
-            template::comment_modifiers
-        )->value();
+        return Helper::Template(
+            "useradd",
+            self::templates_dir
+        )->Value();
     }
 
     private static function registerUser($userData)
     {
-        $crud = new \mc\sql\crud(
+        $crud = new Crud(
             config::$db,
             \meta\users::__name__
         );
-        $crud->insert($userData);
+        $crud->Insert($userData);
     }
 
     private static function registerUsers()
     {
-        \mc\logger::stderr()->info("file structure: " . json_encode($_FILES['csv_file']));
+        Logger::StdErr()->Info("file structure: " . json_encode($_FILES['csv_file']));
 
         $csvLines = file($_FILES['csv_file']['tmp_name']);
 
         $header = array_shift($csvLines);
         foreach ($csvLines as $csvLine) {
-            list($name, $lastname, $firstname, $institution, $email) = explode(";", $csvLine);
+            [$name, $lastname, $firstname, $institution, $email] = explode(";", $csvLine);
             $userData = [
                 \meta\users::NAME => $name,
                 \meta\users::LASTNAME => $lastname,
@@ -151,14 +154,11 @@ class Manager
         return crypt($password, config::salt);
     }
 
-    #[route('user/login')]
+    #[Route('user/login')]
     public static function login()
     {
         if (empty($_POST)) {
-            return template::load(
-                self::templates_dir . "login.tpl.php",
-                template::comment_modifiers
-            )->value();
+            return Helper::Template("login", self::templates_dir)->Value();
         }
 
         $login = filter_input(INPUT_POST, \meta\users::NAME);
@@ -169,7 +169,7 @@ class Manager
             \meta\users::PASSWORD => self::cryptPassword($password)
         ];
 
-        $user = config::$db->select(\meta\users::__name__, ['*'], $condition);
+        $user = config::$db->Select(\meta\users::__name__, ['*'], $condition);
         if (empty($user)) {
             return "login failed";
         }
@@ -178,7 +178,7 @@ class Manager
         exit();
     }
 
-    #[route('user/logout')]
+    #[Route('user/logout')]
     public static function logout()
     {
         session_destroy();

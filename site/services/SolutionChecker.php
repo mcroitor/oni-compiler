@@ -2,9 +2,10 @@
 
 namespace service;
 
-use config;
-
 include_once __DIR__ . "/../config.php";
+
+use config;
+use \Mc\Filesystem\Manager as FM;
 
 class SolutionChecker
 {
@@ -24,9 +25,9 @@ class SolutionChecker
 
     public function __construct(\meta\solutions $solution) {
         $this->solution = $solution;
-        $this->solution_path = \mc\filesystem::root($this->solution->path);
-        $this->solution_name = \mc\filesystem::fileName($this->solution->path);
-        $this->solution_lang = \mc\filesystem::extension($this->solution->path);
+        $this->solution_path = FM::Root($this->solution->path);
+        $this->solution_name = FM::FileName($this->solution->path);
+        $this->solution_lang = FM::Extension($this->solution_name);
         // get config
         $data = json_decode(file_get_contents(\config::languages_config), true);
     }
@@ -67,6 +68,4 @@ class SolutionChecker
             throw new \Exception("Runtime Error: " . $output);
         }
     }
-
-
 }

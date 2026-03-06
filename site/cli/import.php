@@ -9,7 +9,7 @@ include __DIR__ . "/../config.php";
 config::load_modules();
 
 function help() {
-    echo "usage: " . \mc\filesystem::fileName(__FILE__) . " -t <task.zip>";
+    echo "usage: " . \Mc\Filesystem\Manager::Children(__FILE__) . " -t <task.zip>";
 }
 
 function import(string $file) {

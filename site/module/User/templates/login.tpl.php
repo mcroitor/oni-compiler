@@ -4,12 +4,12 @@
             <h1>login</h1>
         </div>
         <div class="twelve columns">
-            <label for="username">username</label>
-            <input class="u-full-width" type="text" name="name" placeholder="username" />
+            <label for="name">username</label>
+            <input class="u-full-width" type="text" name="name" id="name" placeholder="username" autocomplete="off" />
         </div>
         <div class="twelve columns">
             <label for="password">password</label>
-            <input class="u-full-width" type="password" name="password" placeholder="password" />
+            <input class="u-full-width" type="password" name="password" id="password" placeholder="password" />
         </div>
         <div class="twelve columns">
             <input type="submit" class="button-primary" value="login" />
