@@ -1,5 +1,30 @@
 <?php
 
+$core_dir = __DIR__ . DIRECTORY_SEPARATOR . "core";
+
+spl_autoload_register(function ($class) use ($core_dir) {
+    $prefixes = [
+        "Mc\\" => [$core_dir . "/mc/"],
+        "Core\\" => [$core_dir . "/"],
+        "core\\html\\" => [$core_dir . "/html/"],
+        "meta\\" => [$core_dir . "/meta/"],
+    ];
+
+    foreach ($prefixes as $prefix => $paths) {
+        $len = strlen($prefix);
+        if (strncmp($prefix, $class, $len) === 0) {
+            $relativeClass = substr($class, $len);
+            foreach ($paths as $path) {
+                $file = $path . str_replace("\\", "/", $relativeClass) . ".php";
+                if (file_exists($file)) {
+                    require $file;
+                    return;
+                }
+            }
+        }
+    }
+});
+
 class config
 {
     public const items_per_page = 20;
@@ -23,53 +48,13 @@ class config
 
     public const dsn = "sqlite:" . self::database_dir . self::DS . "database.sqlite";
 
-    private const CORE = [
-        "mc/classifier",
-        "mc/sql/crud",
-        "mc/sql/database",
-        "mc/filesystem/manager",
-        "mc/filesystem/path",
-        "mc/filesystem/sausage",
-        "mc/logger",
-        "mc/router",
-        "mc/template",
-        "helper",
-        // meta data
-        "meta/capabilities",
-        "meta/contest_tasks",
-        "meta/contestants",
-        "meta/contests",
-        "meta/role_capabilities",
-        "meta/roles",
-        "meta/solutions",
-        "meta/tasks",
-        "meta/task_tests",
-        "meta/users",
-        // html
-        "html/style",
-        "html/buildable",
-        "html/text",
-        "html/a",
-        "html/html_element",
-        "html/page",
-        "html/builder",
-        "html/form",
-        "html/input",
-        "html/label",
-        "html/option",
-        "html/widget/nav",
-    ];
-
     public static $db = null;
     public static $logger = null;
 
     public static function core()
     {
-        foreach (self::CORE as $module) {
-            include_once self::core_dir . self::DS . "{$module}.php";
-        }
-        self::$db = new Mc\Sql\Database(self::dsn);
-        self::$logger = Mc\Logger::stderr();
+        self::$db = new \Mc\Sql\Database(self::dsn);
+        self::$logger = \Mc\Logger::stderr();
     }
 
     public static function load_modules()
