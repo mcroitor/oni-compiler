@@ -52,10 +52,10 @@ class LanguageProfile
             self::COMPILER_OUTPUT => $this->compiler_output,
         ];
 
-        config::$logger->info("Compile Data: " . json_encode($data));
-        config::$logger->info("Compile command: " . $this->compile_command);
+        config::$logger->Info("Compile Data: " . json_encode($data));
+        config::$logger->Info("Compile command: " . $this->compile_command);
 
-        return (new \mc\template($this->compile_command))->fill($data)->value();
+        return (new \Mc\Template($this->compile_command))->Fill($data)->Value();
     }
 
     public function ExecuteLine(): string
@@ -69,7 +69,7 @@ class LanguageProfile
             self::SOURCE => $source,
             self::INTERPRETER_PATH => $this->interpreter_path,
         ];
-        return (new \mc\template($this->execute_command))->fill($data)->value();
+        return (new \Mc\Template($this->execute_command))->Fill($data)->Value();
     }
 
     public function GetExtensions(): array

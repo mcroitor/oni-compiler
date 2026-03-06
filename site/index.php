@@ -3,14 +3,11 @@
 include_once __DIR__ . DIRECTORY_SEPARATOR . "config.php";
 config::load_modules();
 
-\mc\router::init();
+\Mc\Router::init();
 
-$result = \mc\router::run();
+$result = \Mc\Router::run();
 
-$page = \mc\template::load(
-    config::templates_dir . config::DS . "default.tpl.php",
-    \mc\template::comment_modifiers
-);
+$page = \Core\Helper::Template("default");
 
 $requestUri = filter_input(INPUT_SERVER, "REQUEST_URI", FILTER_SANITIZE_URL) ?? "";
 
@@ -37,6 +34,11 @@ $page_data = [
     "page_primary_menu" => $primary_menu,
     "page_aside" => $aside_menu,
     "page_content" => $result,
+    "main" => empty(config::$asideMenu) ? "twelve columns" : "nine columns",
+    "aside" => empty(config::$asideMenu) ? "" : "three columns",
 ];
 
-echo $page->fill($page_data)->value();
+// config::$logger->Info("Active Route: " . \Mc\Router::getSelectedRoute());
+// config::$logger->Info("All Routes: " . json_encode(\Mc\Router::getRoutes()));
+
+echo $page->Fill($page_data)->Value();

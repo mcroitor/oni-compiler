@@ -4,7 +4,6 @@ namespace Task;
 
 use config;
 use ZipArchive;
-use mc\sql\database;
 
 class TestUploader
 {
@@ -42,7 +41,7 @@ class TestUploader
 
         $points = round(100 / count($tests), 2);
 
-        config::$db->delete(\meta\task_tests::__name__, [\meta\task_tests::TASK_ID => $taskId]);
+        config::$db->Delete(\meta\task_tests::__name__, [\meta\task_tests::TASK_ID => $taskId]);
 
         foreach ($tests as $test) {
             $testDescription = [
@@ -54,7 +53,7 @@ class TestUploader
             ];
             file_put_contents($outDir . $test["in"], $zip->getFromName($test["in"]));
             file_put_contents($outDir . $test["out"], $zip->getFromName($test["out"]));
-            config::$db->insert(\meta\task_tests::__name__, $testDescription);
+            config::$db->Insert(\meta\task_tests::__name__, $testDescription);
         }
 
         header("location:/?q=task/update/{$taskId}");

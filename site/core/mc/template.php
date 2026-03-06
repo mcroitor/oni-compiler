@@ -1,25 +1,28 @@
 <?php
 
-namespace mc;
+namespace Mc;
 
 /**
  * simple template filler
  *
  * @author Croitor Mihail <mcroitor@gmail.com>
  */
-class template
+class Template
 {
-    public const prefix = "prefix";
-    public const suffix = "suffix";
+    public const PREFIX = "PREFIX";
+    public const SUFFIX = "SUFFIX";
 
-    public const comment_modifiers = [
-        self::prefix => "<!-- ",
-        self::suffix => " -->",
+    public const COMMENT_MODIFIERS = [
+        self::PREFIX => "<!-- ",
+        self::SUFFIX => " -->",
     ];
-    public const bracket_modifiers = [
-        self::prefix => "{{",
-        self::suffix => "}}",
+    public const BRACKET_MODIFIERS = [
+        self::PREFIX => "{{",
+        self::SUFFIX => "}}",
     ];
+
+    public const CM = self::COMMENT_MODIFIERS;
+    public const BR = self::BRACKET_MODIFIERS;
 
     /**
      * template
@@ -27,8 +30,8 @@ class template
      */
     protected string $template;
     protected array $modifiers = [
-        self::prefix => "",
-        self::suffix => ""
+        self::PREFIX => "",
+        self::SUFFIX => ""
     ];
 
     /**
@@ -39,11 +42,11 @@ class template
     public function __construct(string $template, array $modifiers = [])
     {
         $this->template = $template;
-        if(isset($modifiers["prefix"])){
-            $this->modifiers["prefix"] = $modifiers["prefix"];
+        if(isset($modifiers[self::PREFIX])){
+            $this->modifiers[self::PREFIX] = $modifiers[self::PREFIX];
         }
-        if(isset($modifiers["suffix"])){
-            $this->modifiers["suffix"] = $modifiers["suffix"];
+        if(isset($modifiers[self::SUFFIX])){
+            $this->modifiers[self::SUFFIX] = $modifiers[self::SUFFIX];
         }
     }
 
@@ -51,29 +54,36 @@ class template
      * Create new template object from file
      * @param string $file
      * @param array $modifiers
-     * @return \mc\template
+     * @return \Mc\Template
      */
-    public static function load(string $file, array $modifiers = []): template
+    public static function Load(string $file, array $modifiers = []): Template
     {
-        return new template(file_get_contents($file), $modifiers);
+        if (!file_exists($file) || !is_readable($file)) {
+            throw new \Exception("File not found: " . $file);
+        }
+        $content = file_get_contents($file);
+        if ($content === false) {
+            throw new \Exception("File not readable: " . $file);
+        }
+        return new Template($content, $modifiers);
     }
 
     /**
      * set filler prefix
      * @param string $prefix
      */
-    public function set_prefix(string $prefix)
+    public function SetPrefix(string $prefix): void
     {
-        $this->modifiers["prefix"] = $prefix;
+        $this->modifiers[self::PREFIX] = $prefix;
     }
 
     /**
      * set filler suffix
      * @param string $suffix
      */
-    public function set_suffix(string $suffix)
+    public function SetSuffix(string $suffix)
     {
-        $this->modifiers["suffix"] = $suffix;
+        $this->modifiers[self::SUFFIX] = $suffix;
     }
 
     /**
@@ -81,36 +91,36 @@ class template
      * Method replace <i>$pattern</i> with <i>$value</i>
      * and return new template object
      * Example:
-     * <pre>$template->fill($data1)->fill(data2)->value();</pre>
+     * <pre>$template->Fill($data1)->Fill(data2)->Value();</pre>
      * @param array $data
-     * @return \mc\template
+     * @return \Mc\Template
      */
-    public function fill(array $data): template
+    public function Fill(array $data): Template
     {
         $html = $this->template;
         foreach ($data as $pattern => $value) {
-            $pattern = $this->modifiers["prefix"] . $pattern . $this->modifiers["suffix"];
+            $pattern = $this->modifiers[self::PREFIX] . $pattern . $this->modifiers[self::SUFFIX];
             $html = str_replace($pattern, $value, $html);
         }
-        return new template($html);
+        return new Template($html);
     }
 
     /**
      * Replace single $pattern with $value
      * @param string $pattern
      * @param string $value
-     * @return \mc\template
+     * @return \Mc\Template
      */
-    public function fill_value(string $pattern, string $value): template
+    public function FillValue(string $pattern, string $value): Template
     {
-        return  new template(str_replace($pattern, $value, $this->template));
+        return  new Template(str_replace($pattern, $value, $this->template));
     }
 
     /**
      * returns template value
      * @return string
      */
-    public function value(): string
+    public function Value(): string
     {
         return $this->template;
     }

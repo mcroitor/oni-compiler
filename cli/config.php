@@ -22,9 +22,11 @@ class config
 
     private const CORE = [
         "mc/classifier",
-        "mc/crud",
-        "mc/database",
-        "mc/filesystem",
+        "mc/sql/crud",
+        "mc/sql/database",
+        "mc/filesystem/manager",
+        "mc/filesystem/path",
+        "mc/filesystem/sausage",
         "mc/logger",
         "mc/router",
         "mc/template",
@@ -42,7 +44,7 @@ class config
         foreach (self::CORE as $module) {
             include_once self::core_dir . self::DS . "{$module}.php";
         }
-        self::$db = new \mc\sql\database(self::dsn);
+        self::$db = new \Mc\Sql\Database(self::dsn);
     }
 }
 

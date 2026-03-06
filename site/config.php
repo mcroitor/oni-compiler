@@ -25,12 +25,15 @@ class config
 
     private const CORE = [
         "mc/classifier",
-        "mc/crud",
-        "mc/database",
-        "mc/filesystem",
+        "mc/sql/crud",
+        "mc/sql/database",
+        "mc/filesystem/manager",
+        "mc/filesystem/path",
+        "mc/filesystem/sausage",
         "mc/logger",
         "mc/router",
         "mc/template",
+        "helper",
         // meta data
         "meta/capabilities",
         "meta/contest_tasks",
@@ -65,13 +68,13 @@ class config
         foreach (self::CORE as $module) {
             include_once self::core_dir . self::DS . "{$module}.php";
         }
-        self::$db = new mc\sql\database(self::dsn);
-        self::$logger = mc\logger::stderr();
+        self::$db = new Mc\Sql\Database(self::dsn);
+        self::$logger = Mc\Logger::stderr();
     }
 
     public static function load_modules()
     {
-        $crud = new \mc\sql\crud(self::$db, "modules");
+        $crud = new \Mc\Sql\Crud(self::$db, "modules");
         $modules = $crud->all();
         foreach ($modules as $module) {
             $module_name = $module["name"];
@@ -106,7 +109,7 @@ class config
     }
 
     // aside menu
-    private static $asideMenu = [];
+    public static $asideMenu = [];
 
     public static function addAsideMenu(array $links)
     {

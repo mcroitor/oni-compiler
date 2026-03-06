@@ -11,8 +11,7 @@ class Capability
         if (!empty(self::$capabilities) || $force) {
             return;
         }
-        $db = new \mc\sql\database(\config::dsn);
-        self::$capabilities = $db->select(\meta\capabilities::__name__);
+        self::$capabilities = \config::$db->Select(\meta\capabilities::__name__);
     }
 
     public static function getName(int $capabilityId): string{

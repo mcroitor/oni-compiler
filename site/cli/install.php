@@ -25,38 +25,38 @@ $TABLE_DATA = [
     "modules",
 ];
 
-use \mc\logger;
-use \mc\sql\database;
+use \Mc\Logger;
+use \Mc\Sql\Database;
 
-$stdout = logger::stdout();
+$stdout = Logger::StdOut();
 
-$stdout->info("create database");
+$stdout->Info("create database");
 // unlink db??
-$db = new database(config::dsn);
-$db->query_sql("PRAGMA foreign_keys = ON;");
+$db = new Database(config::dsn);
+$db->Query("PRAGMA foreign_keys = ON;");
 
-$stdout->info("create tables");
+$stdout->Info("create tables");
 
 foreach ($TABLE_SCHEMA as $table) {
     $query = file_get_contents(__DIR__ . "/../database/structure/{$table}.sql");
-    $stdout->info("create table {$table}");
-    $stdout->info("table schema: {$query}");
-    $db->query_sql($query);
-    $stdout->info("table `{$table}` is created");
+    $stdout->Info("create table {$table}");
+    $stdout->Info("table schema: {$query}");
+    $db->Query($query);
+    $stdout->Info("table `{$table}` is created");
 }
 
-$stdout->info("all tables are created.");
-$stdout->info("create initial data.");
+$stdout->Info("all tables are created.");
+$stdout->Info("create initial data.");
 
 foreach ($TABLE_DATA as $data){
     $dump_file = __DIR__ . "/../database/data/{$data}.sql";
-    $stdout->info("insert data into {$data}");
-    $db->parse_sqldump($dump_file);
-    $stdout->info("data for `{$data}` is created");
+    $stdout->Info("insert data into {$data}");
+    $db->parseSqlDump($dump_file);
+    $stdout->Info("data for `{$data}` is created");
 }
 
-$stdout->info("all data was inserted.");
-$stdout->info("create administrator.");
+$stdout->Info("all data was inserted.");
+$stdout->Info("create administrator.");
 
 $data = [
     "name" => "admin",
@@ -68,4 +68,4 @@ $data = [
     "role_id" => $db->select("roles", ["id"], ["name" => "administrator"])[0]["id"]
 ];
 
-$db->insert("users", $data);
+$db->Insert("users", $data);

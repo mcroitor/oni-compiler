@@ -1,13 +1,13 @@
 <?php
 
-namespace mc;
+namespace Mc;
 
 /**
  * Class classifier, used to load and provide access to classifier data
  * Classifier data is stored as a JSON file in the classifier directory
- * @package mc
+ * @package Mc
  */
-class classifier
+class Classifier
 {
     private $values = [];
     private $name = "empty";
@@ -22,20 +22,31 @@ class classifier
      * Static method, fabric method, creates classifier from a JSON file.
      * JSON structure: { name: "", values: [] }
      * @param string $classifier_path
-     * @return classifier
+     * @return Classifier
+     * @throws \Exception
+     * @throws \JsonException
      */
-    public static function load(string $classifierPath)
+    public static function load(string $classifierPath): Classifier
     {
+        if (!file_exists($classifierPath)) {
+            throw new \Exception("Classifier file not found: " . $classifierPath);
+        }
+        if (!is_readable($classifierPath)) {
+            throw new \Exception("Classifier file not readable: " . $classifierPath);
+        }
         $data = json_decode(file_get_contents($classifierPath), true);
-        return new classifier($data["name"], $data["values"]);
+        if(json_last_error() !== JSON_ERROR_NONE) {
+            throw new \Exception("Error decoding JSON: " . json_last_error_msg());
+        }
+        return new Classifier($data["name"], $data["values"]);
     }
 
     /**
-     * returne classifier element by its key
+     * return classifier element by its key
      * @param string $id
      * @return mixed
      */
-    public function get(string $id)
+    public function get(string $id): mixed
     {
         if (empty($this->values[$id])) {
             return null;
@@ -47,7 +58,7 @@ class classifier
      * return all classifier elements
      * @return array
      */
-    public function all()
+    public function all(): array
     {
         return $this->values;
     }
@@ -56,7 +67,7 @@ class classifier
      * count elements in classifier
      * @return int
      */
-    public function count()
+    public function count(): int
     {
         return count($this->values);
     }
@@ -65,7 +76,7 @@ class classifier
      * classifier name
      * @return string
      */
-    public function name()
+    public function name(): string
     {
         return $this->name;
     }
@@ -74,7 +85,7 @@ class classifier
      * returns classifier keys
      * @return array
      */
-    public function keys()
+    public function keys(): array
     {
         return array_keys($this->values);
     }
@@ -84,7 +95,7 @@ class classifier
      * @param string $key
      * @return bool
      */
-    public function has_key(string $key): bool
+    public function hasKey(string $key): bool
     {
         return isset($this->values[$key]);
     }
@@ -92,9 +103,11 @@ class classifier
     /**
      * Get key by value. If key does not exist, returns false
      * @param string $value
-     * @return int|string|false
+     * @return int if key is int
+     * @return string if key is string
+     * @return false if key does not exist
      */
-    public function get_key_by_value(string $value): int|string|false
+    public function getKeyByValue(string $value): int|string|false
     {
         return array_search($value, $this->values);
     }
